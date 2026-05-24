@@ -23,16 +23,41 @@
 # Registers:
 
 # File marks:
-'0  2  8  ~/exercises/01_3x3_random_matrix.cpp
-|4,48,2,8,1779543368,"~/exercises/01_3x3_random_matrix.cpp"
+'0  55  16  ~/exercises/02_sum_each_row_in_matrix.cpp
+|4,48,55,16,1779646566,"~/exercises/02_sum_each_row_in_matrix.cpp"
+'1  1  0  ~/exercises/02_sum_each_row_in_matrix.cpp
+|4,49,1,0,1779646566,"~/exercises/02_sum_each_row_in_matrix.cpp"
+'2  2  8  ~/exercises/01_3x3_random_matrix.cpp
+|4,50,2,8,1779543368,"~/exercises/01_3x3_random_matrix.cpp"
 
 # Jumplist (newest first):
+-'  55  16  ~/exercises/02_sum_each_row_in_matrix.cpp
+|4,39,55,16,1779646566,"~/exercises/02_sum_each_row_in_matrix.cpp"
+-'  1  0  ~/exercises/02_sum_each_row_in_matrix.cpp
+|4,39,1,0,1779646566,"~/exercises/02_sum_each_row_in_matrix.cpp"
+-'  1  0  ~/exercises/02_sum_each_row_in_matrix.cpp
+|4,39,1,0,1779646520,"~/exercises/02_sum_each_row_in_matrix.cpp"
+-'  2  8  ~/exercises/01_3x3_random_matrix.cpp
+|4,39,2,8,1779543368,"~/exercises/01_3x3_random_matrix.cpp"
+-'  2  8  ~/exercises/01_3x3_random_matrix.cpp
+|4,39,2,8,1779543368,"~/exercises/01_3x3_random_matrix.cpp"
 -'  2  8  ~/exercises/01_3x3_random_matrix.cpp
 |4,39,2,8,1779543368,"~/exercises/01_3x3_random_matrix.cpp"
 -'  1  0  ~/exercises/01_3x3_random_matrix.cpp
 |4,39,1,0,1779543331,"~/exercises/01_3x3_random_matrix.cpp"
+-'  1  0  ~/exercises/01_3x3_random_matrix.cpp
+|4,39,1,0,1779543331,"~/exercises/01_3x3_random_matrix.cpp"
+-'  1  0  ~/exercises/01_3x3_random_matrix.cpp
+|4,39,1,0,1779543331,"~/exercises/01_3x3_random_matrix.cpp"
 
 # History of marks within files (newest to oldest):
+
+> ~/exercises/02_sum_each_row_in_matrix.cpp
+	*	1779646566	0
+	"	55	16
+	^	55	17
+	.	55	17
+	+	55	17
 
 > ~/exercises/01_3x3_random_matrix.cpp
 	*	1779543364	0
