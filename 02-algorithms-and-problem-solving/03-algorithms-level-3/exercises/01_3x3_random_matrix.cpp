@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-#include <string>
 
 
 int	RandomNumber(int From, int To)
