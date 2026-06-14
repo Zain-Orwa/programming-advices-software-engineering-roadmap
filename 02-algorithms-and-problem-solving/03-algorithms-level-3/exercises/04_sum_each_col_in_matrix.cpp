@@ -1,5 +1,7 @@
 
 #include <cstdlib>
+#include <iostream>
+#include <iomanip>
 
 int	RandomNumber(int From, int To)
 {
