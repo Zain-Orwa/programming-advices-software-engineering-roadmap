@@ -19,7 +19,10 @@ void	PrintMatrix(int arr[3][3], short Rows, short Cols)
 	for (short i = 0; i < Rows; i++)
 	{	
 		for (short j = 0; j < Cols; j++)
-			std::cout << std::setw(3) << arr[i][j] << "		";
+		{
+			printf(" %0*d ", 2, arr[i][j]);
+			//std::cout << std::setw(3) << arr[i][j] << "		";
+		}
 		std::cout << "\n";
 	}
 }
