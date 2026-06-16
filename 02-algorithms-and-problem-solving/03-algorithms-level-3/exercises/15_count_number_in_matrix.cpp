@@ -2,7 +2,7 @@
 
 int RandomNumber(int From, int To)
 {
-    return (rand() % (To - From) + From);
+    return (rand() % (To - From + 1) + From);
 }
 
 void FillMatrixWithRandomNumbers(int arr[3][3], short Rows, short Cols)
