@@ -1,6 +1,6 @@
 #include <iostream>
 
-void   CreateIdentityMatrix(int arr[3][3], short Rows, short Cols)
+void CreateIdentityMatrix(int arr[3][3], short Rows, short Cols)
 {
     for (short i = 0; i < Rows; i++)
     {
@@ -22,7 +22,7 @@ void PrintMatrix(int arr[3][3], short Rows, short Cols)
     }
 }
 
-bool    IsScalarMatrix(int arr[3][3], short Rows, short Cols)
+bool IsIdentityMatrix(int arr[3][3], short Rows, short Cols)
 {
     short DiagonalElement;
 
@@ -41,17 +41,17 @@ bool    IsScalarMatrix(int arr[3][3], short Rows, short Cols)
 
 int main(void)
 {
-    //int arr[3][3];
-    int arr[3][3]={{9,0,0},{0,4,0},{0,0,9}};
+    // int arr[3][3];
+    int arr[3][3] = {{9, 0, 0}, {0, 4, 0}, {0, 0, 9}};
 
-  //  CreateIdentityMatrix(arr, 3, 3);
+    //  CreateIdentityMatrix(arr, 3, 3);
     std::cout << "\nThe following is 3x3 matrix:\n";
     PrintMatrix(arr, 3, 3);
 
-    if (IsScalarMatrix(arr, 3, 3))
-        std::cout << "\nYes, it's scalar matrix!\n";
+    if (IsIdentityMatrix(arr, 3, 3))
+        std::cout << "\nYes, it's identity matrix!\n";
     else
-        std::cout << "\nNo, it's not scalar matrix!\n";
+        std::cout << "\nNo, it's not identity matrix!\n";
 
     return (0);
 }
