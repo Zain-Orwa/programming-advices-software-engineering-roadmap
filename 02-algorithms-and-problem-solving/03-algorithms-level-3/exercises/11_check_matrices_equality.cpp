@@ -27,7 +27,7 @@ void	PrintMatrix(int arr[3][3], short Rows, short Cols)
 	}
 }
 
-bool    is_equal_matrices(int arr1[3][3], int arr2[3][3], short Rows, short Cols)
+bool    AreEqualMatrices(int arr1[3][3], int arr2[3][3], short Rows, short Cols)
 {
     	for (short i = 0; i < Rows; i++)
 	{	
@@ -56,7 +56,7 @@ int main(void)
 	std::cout << "\nMatrix2:\n";
 	PrintMatrix(arr2, 3, 3);
 
-        if (is_equal_matrices(arr1, arr2, 3, 3))
+        if (AreEqualMatrices(arr1, arr2, 3, 3))
             std::cout << "\nYes, matrices are equal!\n"; 
         else
             std::cout << "\nNo, matrices are not equal!\n"; 
