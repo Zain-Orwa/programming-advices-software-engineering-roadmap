@@ -6,7 +6,7 @@ void   CreateIdentityMatrix(int arr[3][3], short Rows, short Cols)
     {
         for (short j = 0; j < Cols; j++)
         {
-            arr[i][j] = (i == j) ? 5 : 0;
+            arr[i][j] = (i == j) ? 1 : 0;
         }
     }
 }
@@ -26,12 +26,11 @@ bool    IsScalarMatrix(int arr[3][3], short Rows, short Cols)
 {
     short DiagonalElement;
 
-    DiagonalElement = arr[0][0];
     for (short i = 0; i < Rows; i++)
     {
         for (short j = 0; j < Cols; j++)
         {
-            if (i == j && arr[i][j] != DiagonalElement)
+            if (i == j && arr[i][j] != 1)
                 return (false);
             else if (i != j && arr[i][j] != 0)
                 return (false);
