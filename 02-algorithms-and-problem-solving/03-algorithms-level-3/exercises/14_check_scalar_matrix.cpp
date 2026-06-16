@@ -6,7 +6,7 @@ void   CreateIdentityMatrix(int arr[3][3], short Rows, short Cols)
     {
         for (short j = 0; j < Cols; j++)
         {
-            arr[i][j] = (i == j) ? 1 : 0;
+            arr[i][j] = (i == j) ? 5 : 0;
         }
     }
 }
@@ -29,7 +29,7 @@ bool    IsIdentityMatrix(int arr[3][3], short Rows, short Cols)
         for (short j = 0; j < Cols; j++)
         {
             if (i == j && arr[i][j] != 1)
-                return (false);
+                return (true);
             else if (i != j && arr[i][j] != 0)
                 return (false);
         }
@@ -40,16 +40,16 @@ bool    IsIdentityMatrix(int arr[3][3], short Rows, short Cols)
 int main(void)
 {
     //int arr[3][3];
-    int arr[3][3]={{1,2,3},{4,5,6},{7,8,9}};
+    int arr[3][3]={{9,0,0},{0,4,0},{0,0,9}};
 
-   // CreateIdentityMatrix(arr, 3, 3);
+  //  CreateIdentityMatrix(arr, 3, 3);
     std::cout << "\nThe following is 3x3 matrix:\n";
     PrintMatrix(arr, 3, 3);
 
     if (IsIdentityMatrix(arr, 3, 3))
-        std::cout << "\nYes, matrix is identity!\n";
+        std::cout << "\nYes, it's scalar matrix!\n";
     else
-        std::cout << "\nNo, matrix is not identity!\n";
+        std::cout << "\nNo, it's not scalar matrix!\n";
 
     return (0);
 }
