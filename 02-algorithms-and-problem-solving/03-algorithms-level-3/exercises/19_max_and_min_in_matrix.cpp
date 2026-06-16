@@ -41,6 +41,21 @@ int    MaxNumberInMatrix(int arr[3][3], short Rows, short Cols)
     return (Max);
 }
 
+int    MinNumberInMatrix(int arr[3][3], short Rows, short Cols)
+{
+    int Min;
+
+    Min = arr[0][0];
+	for (short i = 0; i < Rows; i++)
+	{
+		for (short j = 0; j < Cols; j++)
+		{
+           if (Min > arr[i][j])
+            Min = arr[i][j];
+		}
+	} 
+    return (Min);
+}
 
 int main(void)
 {
@@ -50,6 +65,7 @@ int main(void)
     std::cout << "\nThe matrix:\n";
     PrintMatrix(arr, 3, 3);
 
+    std::cout << "\nMin number is: " << MinNumberInMatrix(arr, 3, 3);
     std::cout << "\nMax number is: " << MaxNumberInMatrix(arr, 3, 3);
 
     return (0);
