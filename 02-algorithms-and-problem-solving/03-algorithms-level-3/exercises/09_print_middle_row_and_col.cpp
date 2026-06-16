@@ -27,18 +27,24 @@ void	PrintMatrix(int arr[3][3], short Rows, short Cols)
 	}
 }
 
-void	PrintMiddleRow(int arr[3][3], short Rows)
+void	PrintMiddleRow(int arr[3][3], short Cols, short Rows)
 {
-	for (short i = 0; i < Rows; i++)
-		printf(" %0*d ", 2, arr[1][i]);
+	short MiddleRow;
+
+	MiddleRow = Rows / 2;
+	for (short i = 0; i < Cols; i++)
+		printf(" %0*d ", 2, arr[MiddleRow][i]);
 	printf("\n");
 	
 }
 
-void	PrintMiddleCol(int arr[3][3], short Cols)
+void	PrintMiddleCol(int arr[3][3], short Rows, short Cols)
 {
-	for (short i = 0; i < Cols; i++)
-		printf(" %0*d \n", 2, arr[i][1]);
+	short MiddleCol;
+
+	MiddleCol = Cols / 2;
+	for (short i = 0; i < Rows; i++)
+		printf(" %0*d \n", 2, arr[i][MiddleCol]);
 }
 
 int main(void)
@@ -53,10 +59,10 @@ int main(void)
 	PrintMatrix(arr, 3, 3);
 
 	std::cout << "\nMiddle Row:\n";
-	PrintMiddleRow(arr, 3);
+	PrintMiddleRow(arr, 3, 3);
 
 	std::cout << "\nMiddle Col:\n";
-	PrintMiddleCol(arr, 3);
+	PrintMiddleCol(arr, 3, 3);
 
 	return (0);
 }
