@@ -11,14 +11,20 @@ std::string ReadString(void)
 
 std::string LowerAllLetters(std::string str)
 {
-    bool isFirstLetter;
-
-    isFirstLetter = true;
     for (size_t i = 0; i < str.length(); i++)
     {
-        if (str[i] != ' ' && isFirstLetter)
+        if (isupper(str[i]))
             str[i] += 32;
-        isFirstLetter = (str[i] == ' ' ? true : false);
+    }
+    return (str);
+}
+
+std::string UpperAllLetters(std::string str)
+{
+    for (size_t i = 0; i < str.length(); i++)
+    {
+        if (islower(str[i]))
+            str[i] -= 32;
     }
     return (str);
 }
@@ -26,8 +32,13 @@ std::string LowerAllLetters(std::string str)
 int main(void)
 {
     std::string str = ReadString();
-    std::cout << "\nString after conversion is:\n";
+
     str = LowerAllLetters(str);
+    std::cout << "\nAll string to lower:\n";
+    std::cout << str << std::endl;
+
+    str = UpperAllLetters(str);
+    std::cout << "\nAll string to upper:\n";
     std::cout << str << std::endl;
 
     return (0);
