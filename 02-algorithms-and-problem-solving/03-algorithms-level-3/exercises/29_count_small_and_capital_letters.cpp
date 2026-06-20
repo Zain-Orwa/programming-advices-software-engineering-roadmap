@@ -34,11 +34,16 @@ int CountCapitalLetters(std::string str)
     }
     return (count);
 }*/
-enum    enWhatToCount{SmallLetters=0, CapitalLetters=1};
+enum    enWhatToCount{SmallLetters=0, CapitalLetters=1, All=2};
 
-short   CountLetters(std::string str, enWhatToCount WhatToCount)
+short   CountLetters(std::string str, enWhatToCount WhatToCount=enWhatToCount::All)
 {
     short count;
+
+    if (WhatToCount == enWhatToCount::All)
+    {
+        return (str.length());
+    }
 
     count = 0;
     for (size_t i = 0; i < str.length(); i++)
@@ -56,7 +61,7 @@ int main(void)
 {
     std::string str = ReadString();
 
-    std::cout << "\nString Length: " << str.length() << std::endl;
+    std::cout << "\nString Length: " << CountLetters(str) << std::endl;
     /* Two Function for each case*/
     // std::cout << "Count Capital Letters: " << CountCapitalLetters(str);
     //std::cout << "\nCount Small Letters: " << CountSmallLetters(str);
