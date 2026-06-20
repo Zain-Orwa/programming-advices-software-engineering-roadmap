@@ -8,7 +8,7 @@ std::string ReadString(void)
     std::getline(std::cin, str);
     return (str);
 }
-char    ReadCharacter()
+char ReadCharacter()
 {
     char c;
     std::cout << "Please Enter a Character:\n";
@@ -16,7 +16,7 @@ char    ReadCharacter()
     return (c);
 }
 
-int CountLetterInString(std::string str, char Letter, bool MatchCase=true)
+int CountLetterInString(std::string str, char Letter, bool MatchCase = true)
 {
     short Counter;
 
@@ -30,13 +30,13 @@ int CountLetterInString(std::string str, char Letter, bool MatchCase=true)
         }
         else
         {
-            if (toupper(str[i]) == toupper(Letter))
+            if (tolower(str[i]) == tolower(Letter))
                 Counter++;
         }
     }
     return (Counter);
 }
-char    InvertCharacter(char c)
+char InvertCharacter(char c)
 {
     return (isupper(c) ? tolower(c) : toupper(c));
 }
@@ -49,10 +49,9 @@ int main(void)
     std::cout << "\nCase sensetive:\n";
     std::cout << "Letter \'" << Ch1 << "\' Count = " << CountLetterInString(str, Ch1) << std::endl;
 
-
     std::cout << "\nCase insensetive:\n";
     std::cout << "Letter \'" << Ch1 << "\' Or \'" << InvertCharacter(Ch1) << "\' ";
-    std::cout << CountLetterInString(str, Ch1, false) << std::endl; 
+    std::cout << CountLetterInString(str, Ch1, false) << std::endl;
 
     return (0);
 }

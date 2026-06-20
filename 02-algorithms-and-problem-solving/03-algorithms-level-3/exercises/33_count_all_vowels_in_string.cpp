@@ -8,22 +8,21 @@ std::string ReadString(void)
     std::getline(std::cin, str);
     return (str);
 }
-char    ReadCharacter()
+
+bool isVowel(char Ch1)
 {
-    char c;
-    std::cout << "Please Enter a Character:\n";
-    std::cin >> c;
-    return (c);
+    Ch1 = tolower(Ch1);
+    return (Ch1 == 'a' || Ch1 == 'e' || Ch1 == 'i' || Ch1 == 'o' || Ch1 == 'u');
 }
 
-int CountLetterInString(std::string str, char Letter)
+int CountAllVowelsInString(std::string str)
 {
-    short Counter;
+    int Counter;
 
     Counter = 0;
     for (size_t i = 0; i < str.length(); i++)
     {
-        if (str[i] == Letter)
+        if (isVowel(str[i]))
             Counter++;
     }
     return (Counter);
@@ -32,9 +31,8 @@ int CountLetterInString(std::string str, char Letter)
 int main(void)
 {
     std::string str = ReadString();
-    char Char1 = ReadCharacter();
 
-    std::cout << "Character '" << Char1 << "' Counted: " << CountLetterInString(str, Char1) << std::endl;
+    std::cout << "\nVowel Letters Count = " << CountAllVowelsInString(str) << std::endl;
 
     return (0);
 }

@@ -8,7 +8,7 @@ std::string ReadString(void)
     std::getline(std::cin, str);
     return (str);
 }
-char    InvertCharacter(char c)
+char InvertCharacter(char c)
 {
     return (isupper(c) ? tolower(c) : toupper(c));
 }

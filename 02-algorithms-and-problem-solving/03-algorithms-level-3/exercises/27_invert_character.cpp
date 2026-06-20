@@ -1,6 +1,6 @@
 #include <iostream>
 
-char    ReadCharacter()
+char ReadCharacter()
 {
     char c;
     std::cout << "Please Enter a Character:\n";
@@ -8,18 +8,17 @@ char    ReadCharacter()
     return (c);
 }
 
-char    InvertCharacter(char c)
+char InvertCharacter(char c)
 {
     return (isupper(c) ? tolower(c) : toupper(c));
 }
-
 
 int main(void)
 {
     char c = ReadCharacter();
 
     std::cout << "\nCharacter after inverting case:\n";
-    c =InvertCharacter(c);
+    c = InvertCharacter(c);
     std::cout << c << std::endl;
 
     return (0);
