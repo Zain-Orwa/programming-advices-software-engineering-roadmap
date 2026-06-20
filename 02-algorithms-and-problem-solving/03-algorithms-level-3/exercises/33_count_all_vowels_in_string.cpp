@@ -32,7 +32,7 @@ int main(void)
 {
     std::string str = ReadString();
 
-    std::cout << "\nVowel Letters Count = " << CountAllVowelsInString(str) << std::endl;
+    std::cout << "\nNumber of vowels is:  " << CountAllVowelsInString(str) << std::endl;
 
     return (0);
 }
