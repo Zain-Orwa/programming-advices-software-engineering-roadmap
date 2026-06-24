@@ -31,19 +31,18 @@ std::vector<std::string> SplitString(std::string str, std::string delim)
 
 std::string ReverseWordInString(std::string str)
 {
-    std::string str2= "";
-    std::vector<std::string> vString ;
-    vString = SplitString(str, " "); 
-    
-    //Declare iterator//
-    std::vector<std::string>::iterator iter = vString.end();
+    std::string str2 = "";
+    std::vector<std::string> vString;
 
+    vString = SplitString(str, " ");
+
+    std::vector<std::string>::iterator iter = vString.end(); 
     while (iter != vString.begin())
     {
         iter--;
-        str2 += *iter + " ";
+        str2 = str2 + *iter + " ";
     }
-    return (str2 = str2.substr(0, str2.length() - 1)); //remove the last space//
+    return (str2.substr(0, str2.length() - 1));
 }
 
 int main(void)
