@@ -61,7 +61,8 @@ string DayShortName(short DayOfTheWeekOrder){
 	return arrDayNames[DayOfTheWeekOrder];
 }
 
-int main(){
+int main()
+{
 	short Day    = ReadDay();
 	short Month  = ReadMonth();
 	short Year   = ReadYear();
@@ -72,4 +73,3 @@ int main(){
 
 	return (0);
 }
-
