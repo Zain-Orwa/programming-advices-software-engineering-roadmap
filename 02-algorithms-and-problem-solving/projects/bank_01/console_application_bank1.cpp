@@ -85,7 +85,7 @@ void PrintClientRecord(sClient Client)
     std::cout << "| " << std::setw(12) << std::left << Client.Phone;
     std::cout << "| " << std::setw(12) << std::left << Client.AccountBalance;
 }
-void ShowAllClientsOnScreen()
+void ShowAllClientsScreen()
 {
     std::vector<sClient> vClients = LoadClientsDataFromFile(ClientsFileName);
 
@@ -152,6 +152,141 @@ void    GoBackToMainMenue()
     ShowMainMenue();
 }
 
+sClient ConvertLinetoRecord(string Line, string Seperator = "#//#")
+{
+    sClient Client;
+    vector<string> vClientData;
+
+    vClientData = SplitString(Line, Seperator);
+
+    Client.AccountNumber = vClientData[0];
+    Client.PinCode = vClientData[1];
+    Client.Name = vClientData[2];
+    Client.Phone = vClientData[3];
+    Client.AccountBalance = stod(vClientData[4]); //cast string to double
+
+    return Client;
+}
+
+string ConvertRecordToLine(sClient Client, string Seperator = "#//#")
+{
+    string stClientRecord = "";
+
+    stClientRecord += Client.AccountNumber + Seperator;
+    stClientRecord += Client.PinCode + Seperator;
+    stClientRecord += Client.Name + Seperator;
+    stClientRecord += Client.Phone + Seperator;
+    stClientRecord += to_string(Client.AccountBalance);
+
+    return stClientRecord;
+}
+
+bool ClientExistsByAccountNumber(string AccountNumber, string FileName)
+{
+    vector <sClient> vClients;
+    fstream MyFile;
+
+    MyFile.open(FileName, ios::in); //read Mode
+
+    if (MyFile.is_open())
+    {
+        string Line;
+        sClient Client;
+
+        while (getline(MyFile, Line))
+        {
+            Client = ConvertLinetoRecord(Line);
+
+            if (Client.AccountNumber == AccountNumber)
+            {
+                MyFile.close();
+                return true;
+            }
+
+            vClients.push_back(Client);
+        }
+
+        MyFile.close();
+    }
+
+    return false;
+}
+
+sClient ReadNewClient()
+{
+    sClient Client;
+
+    cout << "Enter Account Number? ";
+
+    // Usage of std::ws will extract allthe whitespace character
+    getline(cin >> ws, Client.AccountNumber);
+
+    while (ClientExistsByAccountNumber(Client.AccountNumber, ClientsFileName))
+    {
+        cout << "\nClient with [" << Client.AccountNumber << "] already exists, Enter another Account Number? ";
+        getline(cin >> ws, Client.AccountNumber);
+    }
+
+    cout << "Enter PinCode? ";
+    getline(cin, Client.PinCode);
+
+    cout << "Enter Name? ";
+    getline(cin, Client.Name);
+
+    cout << "Enter Phone? ";
+    getline(cin, Client.Phone);
+
+    cout << "Enter AccountBalance? ";
+    cin >> Client.AccountBalance;
+
+    return Client;
+}
+
+void AddDataLineToFile(string FileName, string stDataLine)
+{
+    fstream MyFile;
+
+    MyFile.open(FileName, ios::out | ios::app);
+
+    if (MyFile.is_open())
+    {
+        MyFile << stDataLine << endl;
+        MyFile.close();
+    }
+}
+
+void AddNewClient()
+{
+    sClient Client;
+
+    Client = ReadNewClient();
+
+    AddDataLineToFile(ClientsFileName, ConvertRecordToLine(Client));
+}
+
+void AddNewClients()
+{
+    char AddMore = 'Y';
+
+    do
+    {
+        cout << "Adding New Client:\n\n";
+
+        AddNewClient();
+
+        cout << "\nClient Added Successfully, do you want to add more clients? Y/N? ";
+        cin >> AddMore;
+
+    } while (toupper(AddMore) == 'Y');
+}
+
+void ShowAddNewClientsScreen()
+{
+    cout << "\n-----------------------------------\n";
+    cout << "\tAdd New Clients Screen";
+    cout << "\n-----------------------------------\n";
+    AddNewClients();
+}
 
 void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
 {
@@ -159,12 +294,14 @@ void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
     {
         case enMainMenueOptions::eListClients:
         ClearScreen();
-        ShowAllClientsOnScreen();
+        ShowAllClientsScreen();
         GoBackToMainMenue();
         break;
 
         case enMainMenueOptions::eAddClient:
         ClearScreen();
+        ShowAddNewClientsScreen();
+        GoBackToMainMenue();
         break;
 
         case enMainMenueOptions::eDeleteClient:
