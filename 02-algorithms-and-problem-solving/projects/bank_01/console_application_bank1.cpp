@@ -15,6 +15,7 @@ struct sClient
     std::string Name;
     std::string Phone;
     double  AccountBalance;
+    bool    MarkForDelete = false;
 };
 
 std::vector<std::string> SplitString(std::string str, std::string delim)
@@ -288,6 +289,147 @@ void ShowAddNewClientsScreen()
     AddNewClients();
 }
 
+vector <sClient> LoadCleintsDataFromFile(string FileName)
+{
+    vector <sClient> vClients;
+    fstream MyFile;
+
+    MyFile.open(FileName, ios::in); //read Mode
+
+    if (MyFile.is_open())
+    {
+        string Line;
+        sClient Client;
+
+        while (getline(MyFile, Line))
+        {
+            Client = ConvertLinetoRecord(Line);
+            vClients.push_back(Client);
+        }
+
+        MyFile.close();
+    }
+
+    return vClients;
+}
+
+string ReadClientAccountNumber()
+{
+    string AccountNumber = "";
+
+    cout << "\nPlease enter AccountNumber? ";
+    cin >> AccountNumber;
+
+    return AccountNumber;
+}
+
+bool FindClientByAccountNumber(string AccountNumber, vector <sClient> vClients, sClient& Client)
+{
+    for (sClient C : vClients)
+    {
+        if (C.AccountNumber == AccountNumber)
+        {
+            Client = C;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void PrintClientCard(sClient Client)
+{
+    cout << "\nThe following are the client details:\n";
+    cout << "-----------------------------------";
+    cout << "\nAccout Number: " << Client.AccountNumber;
+    cout << "\nPin Code : " << Client.PinCode;
+    cout << "\nName : " << Client.Name;
+    cout << "\nPhone : " << Client.Phone;
+    cout << "\nAccount Balance: " << Client.AccountBalance;
+    cout << "\n-----------------------------------\n";
+}
+
+bool MarkClientForDeleteByAccountNumber(string AccountNumber, vector <sClient>& vClients)
+{
+    for (sClient& C : vClients)
+    {
+        if (C.AccountNumber == AccountNumber)
+        {
+            C.MarkForDelete = true;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+vector <sClient> SaveCleintsDataToFile(string FileName, vector <sClient> vClients)
+{
+    fstream MyFile;
+
+    MyFile.open(FileName, ios::out); //overwrite
+
+    string DataLine;
+
+    if (MyFile.is_open())
+    {
+        for (sClient C : vClients)
+        {
+            if (C.MarkForDelete == false)
+            {
+                //we only write records that are not marked for delete.
+                DataLine = ConvertRecordToLine(C);
+                MyFile << DataLine << endl;
+            }
+        }
+
+        MyFile.close();
+    }
+
+    return vClients;
+}
+
+bool DeleteClientByAccountNumber(string AccountNumber, vector <sClient>& vClients)
+{
+    sClient Client;
+    char Answer = 'n';
+
+    if (FindClientByAccountNumber(AccountNumber, vClients, Client))
+    {
+        PrintClientCard(Client);
+
+        cout << "\n\nAre you sure you want delete this client? y/n ? ";
+        cin >> Answer;
+
+        if (Answer == 'y' || Answer == 'Y')
+        {
+            MarkClientForDeleteByAccountNumber(AccountNumber, vClients);
+            SaveCleintsDataToFile(ClientsFileName, vClients);
+
+            //Refresh Clients
+            vClients = LoadCleintsDataFromFile(ClientsFileName);
+
+            cout << "\n\nClient Deleted Successfully.";
+            return true;
+        }
+    }
+    else
+        cout << "\nClient with Account Number (" << AccountNumber << ") is Not Found!";
+    return false;
+}
+
+void ShowDeleteClientScreen()
+{
+    cout << "\n-----------------------------------\n";
+    cout << "\tDelete Client Screen";
+    cout << "\n-----------------------------------\n";
+
+    vector <sClient> vClients = LoadCleintsDataFromFile(ClientsFileName);
+    string AccountNumber = ReadClientAccountNumber();
+
+    DeleteClientByAccountNumber(AccountNumber, vClients);
+}
+
 void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
 {
     switch (MainMenueOption)
@@ -306,14 +448,18 @@ void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
 
         case enMainMenueOptions::eDeleteClient:
         ClearScreen();
+        ShowDeleteClientScreen();
+        GoBackToMainMenue();
         break;
 
         case enMainMenueOptions::eUpdateClient:
         ClearScreen();
+        GoBackToMainMenue();
         break;
 
         case enMainMenueOptions::eFindClient:
         ClearScreen();
+        GoBackToMainMenue();
         break;
 
         case enMainMenueOptions::eExit:
