@@ -144,7 +144,7 @@ short   ReadMainMenueOption()
 }
 void    GoBackToMainMenue()
 {
- std::cout << "\nPress any key to go back to Main Menue..." << std::flush;
+ std::cout << "\n\nPress any key to go back to Main Menue..." << std::flush;
     #ifdef _WIN32
         system("pause>nul");
     #else
