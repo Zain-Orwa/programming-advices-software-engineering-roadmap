@@ -513,6 +513,13 @@ void ShowFindClientScreen()
         cout << "\nClient with Account Number[" << AccountNumber << "] is not found!";
 }
 
+void ShowEndScreen()
+{
+    cout << "\n-----------------------------------\n";
+    cout << "\tProgram Ends :-)";
+    cout << "\n-----------------------------------\n";
+}
+
 void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
 {
     switch (MainMenueOption)
@@ -549,6 +556,7 @@ void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
 
         case enMainMenueOptions::eExit:
         ClearScreen();
+        ShowEndScreen();
         break;
     }
 }
