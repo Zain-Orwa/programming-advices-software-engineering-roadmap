@@ -497,6 +497,22 @@ void ShowUpdateClientScreen()
     UpdateClientByAccountNumber(AccountNumber, vClients);
 }
 
+void ShowFindClientScreen()
+{
+    cout << "\n-----------------------------------\n";
+    cout << "\tFind Client Screen";
+    cout << "\n-----------------------------------\n";
+
+    vector <sClient> vClients = LoadCleintsDataFromFile(ClientsFileName);
+    sClient Client;
+    string AccountNumber = ReadClientAccountNumber();
+
+    if (FindClientByAccountNumber(AccountNumber, vClients, Client))
+        PrintClientCard(Client);
+    else
+        cout << "\nClient with Account Number[" << AccountNumber << "] is not found!";
+}
+
 void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
 {
     switch (MainMenueOption)
@@ -527,6 +543,7 @@ void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
 
         case enMainMenueOptions::eFindClient:
         ClearScreen();
+        ShowFindClientScreen();
         GoBackToMainMenue();
         break;
 
