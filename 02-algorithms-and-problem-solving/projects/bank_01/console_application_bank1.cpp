@@ -127,12 +127,20 @@ void    ClearScreen()
         system("clear");
     #endif
 }
+enum    enTransactionsMenueOptions
+{
+    eDeposit = 1,
+    eWithdraw = 2,
+    eShowTotalBalance = 3,
+    eShowMainMenue = 4
+};
 
-enum enMainMenueOptions
+enum    enMainMenueOptions
 {
     eListClients  = 1, eAddClient    = 2,
     eDeleteClient = 3, eUpdateClient = 4, 
-    eFindClient   = 5, eExit = 6
+    eFindClient   = 5, eShowTransactionsMenue = 6,
+    eExit = 7
 };
 
 short   ReadMainMenueOption()
@@ -572,7 +580,8 @@ void    ShowMainMenue()
     cout << "\t[3] Delete Client.\n";
     cout << "\t[4] Update Client Info.\n";
     cout << "\t[5] Find Client.\n";
-    cout << "\t[6] Exit.\n";
+    cout << "\t[6] Transactions.\n";
+    cout << "\t[7] Exit.\n";
     cout << "===========================================\n";
     PerformMainMenueOption((enMainMenueOptions)ReadMainMenueOption());    
 }
