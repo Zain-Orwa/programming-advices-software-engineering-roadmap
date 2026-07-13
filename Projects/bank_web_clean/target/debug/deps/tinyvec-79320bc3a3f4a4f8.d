@@ -1,0 +1,11 @@
+/Users/zain/Developer/programming-advices-software-engineering-roadmap/Projects/bank_web_clean/target/debug/deps/tinyvec-79320bc3a3f4a4f8.d: /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/lib.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/array.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/array/const_generic_impl.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/arrayvec.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/arrayvec_drain.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/slicevec.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/tinyvec.rs
+
+/Users/zain/Developer/programming-advices-software-engineering-roadmap/Projects/bank_web_clean/target/debug/deps/libtinyvec-79320bc3a3f4a4f8.rmeta: /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/lib.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/array.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/array/const_generic_impl.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/arrayvec.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/arrayvec_drain.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/slicevec.rs /Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/tinyvec.rs
+
+/Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/lib.rs:
+/Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/array.rs:
+/Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/array/const_generic_impl.rs:
+/Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/arrayvec.rs:
+/Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/arrayvec_drain.rs:
+/Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/slicevec.rs:
+/Users/zain/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tinyvec-1.11.0/src/tinyvec.rs:

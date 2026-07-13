@@ -6,7 +6,7 @@
     <title>Bankana</title>
     <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body data-theme="list">
     <canvas id="moneyRain" aria-hidden="true"></canvas>
 
     <div class="scene" aria-hidden="true">
@@ -101,6 +101,10 @@
             </aside>
 
             <section class="stage-card">
+                <button class="mobile-menu-back" id="mobileMenuBack" type="button">
+                    <span>‹</span>
+                    <strong>Main Menu</strong>
+                </button>
                 <section class="screen active" id="screen-list">
                     <div class="screen-title-row">
                         <div class="screen-icon icon-blue">👥</div>
@@ -112,7 +116,43 @@
                         <button class="secondary-action" id="refreshClients" type="button">Refresh</button>
                     </div>
 
-                    <div class="notice-bar" id="listMessage">Loading clients...</div>
+                    <div class="client-count-card" aria-live="polite">
+                        <span class="count-kicker">Total Clients</span>
+                        <strong id="clientCountText">Loading...</strong>
+                        <small id="listMessage">Preparing client list...</small>
+                    </div>
+
+                    <div class="client-tools" aria-label="Client search and filter tools">
+                        <label class="client-tool search-tool">
+                            <span>Search client</span>
+                            <input id="clientSearch" type="search" placeholder="Name, phone, or account number" autocomplete="off" />
+                        </label>
+
+                        <label class="client-tool">
+                            <span>Balance filter</span>
+                            <select id="balanceFilterMode">
+                                <option value="all">All balances</option>
+                                <option value="less">Less than</option>
+                                <option value="greater">Greater than</option>
+                            </select>
+                        </label>
+
+                        <label class="client-tool">
+                            <span>Amount</span>
+                            <input id="balanceFilterAmount" type="number" min="0" step="0.01" placeholder="Example: 5000" />
+                        </label>
+
+                        <label class="client-tool">
+                            <span>Sort balance</span>
+                            <select id="balanceSort">
+                                <option value="none">Default order</option>
+                                <option value="low-high">Low to high</option>
+                                <option value="high-low">High to low</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="notice-bar list-filter-status" id="listFilterMessage">Showing all clients.</div>
 
                     <div class="client-table-wrap">
                         <table>
@@ -212,40 +252,72 @@
                         <div>
                             <span class="option-label">Option 4</span>
                             <h2>Update Client Info</h2>
-                            <p>Enter the existing account number and the new details.</p>
+                            <p>Search by account number or client name first. Then edit the client card directly.</p>
                         </div>
                     </div>
 
-                    <form class="lux-form" id="updateClientForm">
-                        <label class="field-row">
-                            <span class="field-icon">▣</span>
-                            <span class="field-title">Account Number</span>
-                            <input name="accountNumber" placeholder="Existing account number" required />
-                        </label>
-                        <label class="field-row">
-                            <span class="field-icon">🔒</span>
-                            <span class="field-title">New PIN Code</span>
-                            <input name="pinCode" type="password" placeholder="New PIN code" required />
-                        </label>
-                        <label class="field-row">
-                            <span class="field-icon">♙</span>
-                            <span class="field-title">New Name</span>
-                            <input name="name" placeholder="New name" required />
-                        </label>
-                        <label class="field-row">
-                            <span class="field-icon">☎</span>
-                            <span class="field-title">New Phone</span>
-                            <input name="phone" placeholder="New phone" />
-                        </label>
-                        <label class="field-row">
-                            <span class="field-icon">▤</span>
-                            <span class="field-title">New Balance</span>
-                            <input name="accountBalance" type="number" step="0.01" min="0" placeholder="New balance" required />
+                    <form class="lux-form compact update-lookup-form" id="updateLookupForm" autocomplete="off">
+                        <label class="field-row update-lookup-row">
+                            <span class="field-icon">⌕</span>
+                            <span class="field-title">Account / Name</span>
+                            <input name="clientQuery" placeholder="A155 or client name" required />
                         </label>
                         <div class="action-row">
-                            <button class="primary-action" type="submit">Update Client</button>
+                            <button class="primary-action update-search-action" type="submit"><span>⌕</span>Find Client</button>
                         </div>
                     </form>
+
+                    <div class="update-editor hidden" id="updateEditor">
+                        <div class="update-client-card">
+                            <div class="update-card-top">
+                                <span class="update-client-orb">✎</span>
+                                <div>
+                                    <span class="update-card-label">Selected Client</span>
+                                    <h3 id="updateSelectedName">Client Name</h3>
+                                    <p>Modify the fields below, then press the glowing update button.</p>
+                                </div>
+                            </div>
+
+                            <div class="update-card-meta">
+                                <span>Account Number</span>
+                                <strong id="updateSelectedAccount">--</strong>
+                            </div>
+                        </div>
+
+                        <form class="lux-form update-edit-form" id="updateClientForm" autocomplete="off">
+                            <input type="hidden" name="accountNumber" />
+
+                            <label class="field-row">
+                                <span class="field-icon">🔒</span>
+                                <span class="field-title">New PIN Code</span>
+                                <input name="pinCode" type="password" placeholder="Leave blank to keep current PIN" />
+                            </label>
+
+                            <label class="field-row">
+                                <span class="field-icon">♙</span>
+                                <span class="field-title">Client Name</span>
+                                <input name="name" placeholder="Client name" required />
+                            </label>
+
+                            <label class="field-row">
+                                <span class="field-icon">☎</span>
+                                <span class="field-title">Phone</span>
+                                <input name="phone" placeholder="Phone" />
+                            </label>
+
+                            <label class="field-row">
+                                <span class="field-icon">▤</span>
+                                <span class="field-title">Balance</span>
+                                <input name="accountBalance" type="number" step="0.01" min="0" placeholder="Balance" required />
+                            </label>
+
+                            <div class="action-row">
+                                <button class="primary-action update-commit-action" type="submit"><span>✎</span>Update Client</button>
+                                <button class="ghost-action" type="button" id="updateClearSelection"><span>↻</span>Choose Another Client</button>
+                            </div>
+                        </form>
+                    </div>
+
                     <p class="message" id="updateMessage"></p>
                 </section>
 

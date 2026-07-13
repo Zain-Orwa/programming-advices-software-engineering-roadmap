@@ -3,6 +3,7 @@ const API_BASE_URL = '';
 const state = {
     clients: [],
     pendingConfirm: null,
+    selectedUpdateClient: null,
 };
 
 const screens = document.querySelectorAll('.screen');
@@ -10,6 +11,12 @@ const menuButtons = document.querySelectorAll('.menu-item[data-screen]');
 const navButtons = document.querySelectorAll('[data-screen]');
 const clientsTable = document.querySelector('#clientsTable');
 const listMessage = document.querySelector('#listMessage');
+const clientCountText = document.querySelector('#clientCountText');
+const listFilterMessage = document.querySelector('#listFilterMessage');
+const clientSearch = document.querySelector('#clientSearch');
+const balanceFilterMode = document.querySelector('#balanceFilterMode');
+const balanceFilterAmount = document.querySelector('#balanceFilterAmount');
+const balanceSort = document.querySelector('#balanceSort');
 const totalBalances = document.querySelector('#totalBalances');
 const balancesTable = document.querySelector('#balancesTable');
 const transactionTotalBalances = document.querySelector('#transactionTotalBalances');
@@ -23,7 +30,18 @@ const modalText = document.querySelector('#modalText');
 const modalConfirm = document.querySelector('#modalConfirm');
 const modalCancel = document.querySelector('#modalCancel');
 const modalClose = document.querySelector('#modalClose');
+const confirmCard = document.querySelector('.confirm-card');
+const questionOrb = document.querySelector('.question-orb');
 const toast = document.querySelector('#toast');
+const mobileMenuBack = document.querySelector('#mobileMenuBack');
+const refreshClientsButton = document.querySelector('#refreshClients');
+const refreshBalancesButton = document.querySelector('#refreshBalances');
+const updateLookupForm = document.querySelector('#updateLookupForm');
+const updateEditor = document.querySelector('#updateEditor');
+const updateClientForm = document.querySelector('#updateClientForm');
+const updateClearSelection = document.querySelector('#updateClearSelection');
+const updateSelectedName = document.querySelector('#updateSelectedName');
+const updateSelectedAccount = document.querySelector('#updateSelectedAccount');
 
 const mainKeyScreens = {
     '1': 'list',
@@ -41,6 +59,40 @@ const transactionKeyScreens = {
     '3': 'total-balance-action',
 };
 
+const themeByScreen = {
+    list: 'list',
+    add: 'add',
+    delete: 'delete',
+    update: 'update',
+    find: 'find',
+    transactions: 'transactions',
+    'deposit-action': 'deposit',
+    'withdraw-action': 'withdraw',
+    'total-balance-action': 'total',
+    exit: 'exit',
+};
+
+function isMobileLayout() {
+    return window.matchMedia('(max-width: 760px)').matches;
+}
+
+function setScreenTheme(name) {
+    document.body.dataset.theme = themeByScreen[name] || 'list';
+}
+
+function openMobileScreen() {
+    if (isMobileLayout()) {
+        document.body.classList.add('mobile-screen-active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function openMobileMenu() {
+    document.body.classList.remove('mobile-screen-active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
 function money(value) {
     return Number(value || 0).toLocaleString(undefined, {
         minimumFractionDigits: 2,
@@ -55,6 +107,106 @@ function escapeHtml(value) {
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
+}
+
+function clientCountTitleHtml(count) {
+    if (!count) return 'No Clients Available';
+    return `Client List <span class="client-count-glow">${count}</span> Client(s)`;
+}
+
+function clientModalCardHtml(client) {
+    return `
+        <span class="modal-client-card">
+            <span class="modal-client-row"><span>Account Number</span><strong>${escapeHtml(client.accountNumber)}</strong></span>
+            <span class="modal-client-row"><span>Name</span><strong>${escapeHtml(client.name)}</strong></span>
+            <span class="modal-client-row"><span>Phone</span><strong>${escapeHtml(client.phone)}</strong></span>
+            <span class="modal-client-row"><span>Balance</span><strong>$${money(client.accountBalance)}</strong></span>
+        </span>
+    `;
+}
+
+function clientUpdatePreviewHtml(client) {
+    return `
+        <span class="modal-client-card update-preview-card">
+            <span class="modal-client-row"><span>Account Number</span><strong>${escapeHtml(client.accountNumber)}</strong></span>
+            <span class="modal-client-row"><span>Name</span><strong>${escapeHtml(client.name)}</strong></span>
+            <span class="modal-client-row"><span>Phone</span><strong>${escapeHtml(client.phone)}</strong></span>
+            <span class="modal-client-row"><span>Balance</span><strong>$${money(client.accountBalance)}</strong></span>
+        </span>
+    `;
+}
+
+function findClientByAccountOrName(query) {
+    const value = String(query || '').trim().toLowerCase();
+    if (!value) return null;
+
+    const exactAccount = state.clients.find((client) => String(client.accountNumber || '').toLowerCase() === value);
+    if (exactAccount) return exactAccount;
+
+    const exactName = state.clients.find((client) => String(client.name || '').toLowerCase() === value);
+    if (exactName) return exactName;
+
+    return state.clients.find((client) => String(client.name || '').toLowerCase().includes(value)) || null;
+}
+
+function fillUpdateEditor(client) {
+    state.selectedUpdateClient = client;
+
+    updateEditor?.classList.remove('hidden');
+    if (updateSelectedName) updateSelectedName.textContent = client.name;
+    if (updateSelectedAccount) updateSelectedAccount.textContent = client.accountNumber;
+
+    if (updateClientForm) {
+        updateClientForm.elements.accountNumber.value = client.accountNumber;
+        updateClientForm.elements.pinCode.value = '';
+        updateClientForm.elements.name.value = client.name || '';
+        updateClientForm.elements.phone.value = client.phone || '';
+        updateClientForm.elements.accountBalance.value = Number(client.accountBalance || 0);
+    }
+
+    setMessage('#updateMessage', 'Client loaded. You can edit the card now.');
+}
+
+function clearUpdateEditor() {
+    state.selectedUpdateClient = null;
+    updateEditor?.classList.add('hidden');
+    updateClientForm?.reset();
+    setMessage('#updateMessage', '');
+}
+
+
+
+function clientNotFoundHtml(accountNumber) {
+    const safeAccount = escapeHtml(accountNumber || 'Unknown');
+
+    return `
+        <span class="not-found-card">
+            <span class="not-found-label">Account Number</span>
+            <strong class="not-found-account">${safeAccount}</strong>
+            <span class="not-found-message">Client with account number <strong>${safeAccount}</strong> was not found.</span>
+        </span>
+        <span class="modal-not-found-help">Please check the account number and try again.</span>
+    `;
+}
+
+async function showClientNotFound(accountNumber) {
+    await showConfirm({
+        title: 'Client Not Found',
+        html: clientNotFoundHtml(accountNumber),
+        confirmText: 'OK',
+        showCancel: false,
+        variant: 'not-found',
+        icon: '!',
+    });
+}
+
+function decorateRefreshButtons() {
+    [refreshClientsButton, refreshBalancesButton].forEach((button) => {
+        if (!button || button.dataset.decorated === 'true') return;
+        button.classList.add('refresh-glow-button');
+        button.innerHTML = '<span class="refresh-orb">↻</span><span>Refresh</span>';
+        button.dataset.decorated = 'true';
+    });
 }
 
 function formDataObject(form) {
@@ -77,6 +229,8 @@ function showToast(message, ok = true) {
 }
 
 function showScreen(name) {
+    setScreenTheme(name);
+
     screens.forEach((screen) => {
         screen.classList.toggle('active', screen.id === `screen-${name}`);
     });
@@ -86,6 +240,8 @@ function showScreen(name) {
             (['deposit-action', 'withdraw-action', 'total-balance-action'].includes(name) && button.dataset.screen === 'transactions');
         button.classList.toggle('active', shouldBeActive);
     });
+
+    openMobileScreen();
 
     if (name === 'list') {
         loadClients();
@@ -101,10 +257,45 @@ function activeScreenName() {
     return active ? active.id.replace('screen-', '') : 'list';
 }
 
-function showConfirm({ title, text, confirmText = 'Confirm' }) {
+function showConfirm({
+    title,
+    text = '',
+    html = '',
+    confirmText = 'Confirm',
+    cancelText = 'Cancel',
+    showCancel = true,
+    variant = 'default',
+    icon = '?',
+}) {
     modalTitle.textContent = title;
-    modalText.textContent = text;
+
+    if (html) {
+        modalText.innerHTML = html;
+    } else {
+        modalText.textContent = text;
+    }
+
+    if (confirmCard) {
+        confirmCard.classList.toggle('modal-danger', variant === 'danger');
+        confirmCard.classList.toggle('modal-success', variant === 'success');
+        confirmCard.classList.toggle('modal-not-found', variant === 'not-found');
+        confirmCard.classList.toggle('modal-update', variant === 'update');
+    }
+
+    if (questionOrb) {
+        questionOrb.textContent = icon;
+    }
+
+    if (modalCancel) {
+        modalCancel.textContent = cancelText;
+        modalCancel.classList.toggle('hidden', !showCancel);
+    }
+
     modalConfirm.textContent = confirmText;
+    modalConfirm.classList.toggle('danger-confirm-action', variant === 'danger');
+    modalConfirm.classList.toggle('success-confirm-action', variant === 'success');
+    modalConfirm.classList.toggle('not-found-confirm-action', variant === 'not-found');
+    modalConfirm.classList.toggle('update-confirm-action', variant === 'update');
     confirmModal.classList.remove('hidden');
 
     return new Promise((resolve) => {
@@ -129,6 +320,16 @@ confirmModal.addEventListener('click', (event) => {
 
 navButtons.forEach((button) => {
     button.addEventListener('click', () => showScreen(button.dataset.screen));
+});
+
+if (mobileMenuBack) {
+    mobileMenuBack.addEventListener('click', openMobileMenu);
+}
+
+window.addEventListener('resize', () => {
+    if (!isMobileLayout()) {
+        document.body.classList.remove('mobile-screen-active');
+    }
 });
 
 document.addEventListener('keydown', (event) => {
@@ -201,32 +402,100 @@ function updateDuplicateWarning() {
     return exists;
 }
 
+function filteredAndSortedClients() {
+    const searchText = (clientSearch?.value || '').trim().toLowerCase();
+    const mode = balanceFilterMode?.value || 'all';
+    const amountText = balanceFilterAmount?.value || '';
+    const amount = amountText === '' ? null : Number(amountText);
+    const sortMode = balanceSort?.value || 'none';
+
+    let clients = [...state.clients];
+
+    if (searchText) {
+        clients = clients.filter((client) => {
+            const accountNumber = String(client.accountNumber || '').toLowerCase();
+            const name = String(client.name || '').toLowerCase();
+            const phone = String(client.phone || '').toLowerCase();
+            return accountNumber.includes(searchText) || name.includes(searchText) || phone.includes(searchText);
+        });
+    }
+
+    if (amount !== null && Number.isFinite(amount) && mode !== 'all') {
+        clients = clients.filter((client) => {
+            const balance = Number(client.accountBalance || 0);
+            return mode === 'less' ? balance < amount : balance > amount;
+        });
+    }
+
+    if (sortMode === 'low-high') {
+        clients.sort((a, b) => Number(a.accountBalance || 0) - Number(b.accountBalance || 0));
+    }
+
+    if (sortMode === 'high-low') {
+        clients.sort((a, b) => Number(b.accountBalance || 0) - Number(a.accountBalance || 0));
+    }
+
+    return clients;
+}
+
+function renderClientsTable() {
+    const clients = filteredAndSortedClients();
+    clientsTable.innerHTML = '';
+
+    if (clientCountText) {
+        clientCountText.innerHTML = clientCountTitleHtml(state.clients.length);
+    }
+
+    if (listMessage) {
+        listMessage.textContent = state.clients.length
+            ? 'Search by account, name, or phone. Filter and sort by balance.'
+            : 'No Clients Available In The System!';
+    }
+
+    if (listFilterMessage) {
+        const hasSearch = Boolean((clientSearch?.value || '').trim());
+        const hasBalanceFilter = (balanceFilterMode?.value || 'all') !== 'all' && (balanceFilterAmount?.value || '') !== '';
+        const hasSort = (balanceSort?.value || 'none') !== 'none';
+        const activeTools = hasSearch || hasBalanceFilter || hasSort;
+        listFilterMessage.textContent = activeTools
+            ? `Showing ${clients.length} of ${state.clients.length} client(s).`
+            : 'Showing all clients.';
+    }
+
+    if (!clients.length) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td colspan="4" class="empty-table-cell">No clients match your search or balance filter.</td>
+        `;
+        clientsTable.appendChild(row);
+        return;
+    }
+
+    for (const client of clients) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><span class="account-chip">${escapeHtml(client.accountNumber)}</span></td>
+            <td>${escapeHtml(client.name)}</td>
+            <td>${escapeHtml(client.phone)}</td>
+            <td><strong>$${money(client.accountBalance)}</strong></td>
+        `;
+        clientsTable.appendChild(row);
+    }
+}
+
 async function loadClients() {
     try {
-        listMessage.textContent = 'Loading clients...';
+        if (clientCountText) clientCountText.textContent = 'Loading clients...';
+        if (listMessage) listMessage.textContent = 'Preparing client list...';
         const clients = await refreshClientsCache();
         const balanceData = await apiRequest('/api/balances/total');
 
-        clientsTable.innerHTML = '';
-
-        for (const client of clients) {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><span class="account-chip">${escapeHtml(client.accountNumber)}</span></td>
-                <td>${escapeHtml(client.name)}</td>
-                <td>${escapeHtml(client.phone)}</td>
-                <td><strong>$${money(client.accountBalance)}</strong></td>
-            `;
-            clientsTable.appendChild(row);
-        }
-
+        renderClientsTable();
         totalBalances.textContent = `Total balances: $${money(balanceData.totalBalances)}`;
-        listMessage.textContent = clients.length
-            ? `Client List (${clients.length}) Client(s).`
-            : 'No Clients Available In The System!';
         await checkApi();
         updateDuplicateWarning();
     } catch (error) {
+        if (clientCountText) clientCountText.textContent = 'Client List Error';
         listMessage.textContent = `Error: ${error.message}`;
         systemCard.classList.remove('online');
         apiStatus.textContent = 'Backend Offline';
@@ -265,13 +534,26 @@ async function ensureClientsLoaded() {
 
 addAccountInput.addEventListener('input', updateDuplicateWarning);
 addAccountInput.addEventListener('blur', updateDuplicateWarning);
-document.querySelector('#refreshClients').addEventListener('click', loadClients);
-document.querySelector('#refreshBalances').addEventListener('click', loadTransactionBalances);
+refreshClientsButton?.addEventListener('click', loadClients);
+refreshBalancesButton?.addEventListener('click', loadTransactionBalances);
+[clientSearch, balanceFilterMode, balanceFilterAmount, balanceSort].forEach((control) => {
+    if (!control) return;
+    control.addEventListener('input', renderClientsTable);
+    control.addEventListener('change', renderClientsTable);
+});
 
 document.querySelector('#addClientForm').addEventListener('submit', async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
     const data = formDataObject(form);
+
+    const newClient = {
+        accountNumber: data.accountNumber.trim(),
+        pinCode: data.pinCode,
+        name: data.name.trim(),
+        phone: data.phone.trim(),
+        accountBalance: Number(data.accountBalance),
+    };
 
     await ensureClientsLoaded();
     if (updateDuplicateWarning()) {
@@ -281,9 +563,14 @@ document.querySelector('#addClientForm').addEventListener('submit', async (event
     }
 
     const confirmed = await showConfirm({
-        title: 'Are you sure you want to add this client?',
-        text: 'This action will create a new client with the details shown.',
-        confirmText: 'Confirm',
+        title: 'Review this client before adding',
+        html: `
+            ${clientModalCardHtml(newClient)}
+            <span class="modal-success-text">Create this new client in the database?</span>
+        `,
+        confirmText: 'Add Client',
+        variant: 'success',
+        icon: '＋',
     });
 
     if (!confirmed) return;
@@ -291,14 +578,21 @@ document.querySelector('#addClientForm').addEventListener('submit', async (event
     try {
         await apiRequest('/api/clients', {
             method: 'POST',
-            body: JSON.stringify({
-                accountNumber: data.accountNumber.trim(),
-                pinCode: data.pinCode,
-                name: data.name.trim(),
-                phone: data.phone.trim(),
-                accountBalance: Number(data.accountBalance),
-            }),
+            body: JSON.stringify(newClient),
         });
+
+        await showConfirm({
+            title: 'Client Added Successfully',
+            html: `
+                ${clientModalCardHtml(newClient)}
+                <span class="modal-success-text">This client was added to your database.</span>
+            `,
+            confirmText: 'View Client List',
+            showCancel: false,
+            variant: 'success',
+            icon: '✓',
+        });
+
         form.reset();
         setMessage('#addMessage', 'Client Added Successfully.');
         showToast('Client Added Successfully.');
@@ -316,55 +610,141 @@ document.querySelector('#deleteClientForm').addEventListener('submit', async (ev
     event.preventDefault();
     const form = event.currentTarget;
     const { accountNumber } = formDataObject(form);
-
-    const confirmed = await showConfirm({
-        title: 'Are you sure you want to delete this client?',
-        text: `Account ${accountNumber} will be removed from the system.`,
-        confirmText: 'Delete',
-    });
-
-    if (!confirmed) return;
+    const account = accountNumber.trim();
 
     try {
-        await apiRequest(`/api/clients/${encodeURIComponent(accountNumber.trim())}`, { method: 'DELETE' });
+        await ensureClientsLoaded();
+
+        const client = state.clients.find((client) => client.accountNumber === account);
+
+        if (!client) {
+            await showClientNotFound(account);
+            setMessage('#deleteMessage', '', false);
+            return;
+        }
+
+        const confirmed = await showConfirm({
+            title: 'Review this client before deleting',
+            html: `
+                ${clientModalCardHtml(client)}
+                <span class="modal-danger-text">⚠ Are you sure you want to delete this client?</span>
+            `,
+            confirmText: 'Delete Client',
+            variant: 'danger',
+            icon: '🗑',
+        });
+
+        if (!confirmed) return;
+
+        await apiRequest(`/api/clients?accountNumber=${encodeURIComponent(account)}`, {
+            method: 'DELETE',
+        });
+
         form.reset();
         setMessage('#deleteMessage', 'Client Deleted Successfully.');
         showToast('Client Deleted Successfully.');
         await loadClients();
+        showScreen('list');
     } catch (error) {
+        if (String(error.message || '').toLowerCase().includes('not found')) {
+            await showClientNotFound(account);
+            setMessage('#deleteMessage', '', false);
+            return;
+        }
+
         setMessage('#deleteMessage', `Error: ${error.message}`, false);
         showToast(error.message, false);
     }
 });
 
-document.querySelector('#updateClientForm').addEventListener('submit', async (event) => {
+updateLookupForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
+
+    const form = event.currentTarget;
+    const { clientQuery } = formDataObject(form);
+    const query = clientQuery.trim();
+
+    try {
+        await refreshClientsCache();
+        const client = findClientByAccountOrName(query);
+
+        if (!client) {
+            clearUpdateEditor();
+            await showClientNotFound(query);
+            return;
+        }
+
+        fillUpdateEditor(client);
+    } catch (error) {
+        setMessage('#updateMessage', `Error: ${error.message}`, false);
+        showToast(error.message, false);
+    }
+});
+
+updateClearSelection?.addEventListener('click', () => {
+    clearUpdateEditor();
+    updateLookupForm?.reset();
+});
+
+updateClientForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
     const form = event.currentTarget;
     const data = formDataObject(form);
+    const account = data.accountNumber.trim();
+
+    const updatedClient = {
+        accountNumber: account,
+        pinCode: data.pinCode,
+        name: data.name.trim(),
+        phone: data.phone.trim(),
+        accountBalance: Number(data.accountBalance),
+    };
 
     const confirmed = await showConfirm({
-        title: 'Are you sure you want to update this client?',
-        text: `Account ${data.accountNumber} will be overwritten with the new details.`,
-        confirmText: 'Update',
+        title: 'Review this client before updating',
+        html: `
+            ${clientUpdatePreviewHtml(updatedClient)}
+            <span class="modal-update-text">✎ Are you sure you want to update this client?</span>
+        `,
+        confirmText: 'Update Client',
+        variant: 'update',
+        icon: '✎',
     });
 
     if (!confirmed) return;
 
     try {
-        await apiRequest(`/api/clients/${encodeURIComponent(data.accountNumber.trim())}`, {
+        await apiRequest(`/api/clients?accountNumber=${encodeURIComponent(account)}`, {
             method: 'PUT',
-            body: JSON.stringify({
-                pinCode: data.pinCode,
-                name: data.name.trim(),
-                phone: data.phone.trim(),
-                accountBalance: Number(data.accountBalance),
-            }),
+            body: JSON.stringify(updatedClient),
         });
+
+        await showConfirm({
+            title: 'Client Updated Successfully',
+            html: `
+                ${clientUpdatePreviewHtml(updatedClient)}
+                <span class="modal-update-text">The client information was saved in your database.</span>
+            `,
+            confirmText: 'View Client List',
+            showCancel: false,
+            variant: 'update',
+            icon: '✓',
+        });
+
         form.reset();
+        clearUpdateEditor();
+        updateLookupForm?.reset();
         setMessage('#updateMessage', 'Client Updated Successfully.');
         showToast('Client Updated Successfully.');
         await loadClients();
+        showScreen('list');
     } catch (error) {
+        if (String(error.message || '').toLowerCase().includes('not found')) {
+            await showClientNotFound(account);
+            return;
+        }
+
         setMessage('#updateMessage', `Error: ${error.message}`, false);
         showToast(error.message, false);
     }
@@ -471,6 +851,8 @@ function startMoneyRain() {
     draw();
 }
 
+decorateRefreshButtons();
+setScreenTheme(activeScreenName());
 startMoneyRain();
 checkApi();
 loadClients();
