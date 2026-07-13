@@ -146,7 +146,7 @@ enum    enMainMenueOptions
 
 short   ReadMainMenueOption()
 {
-    cout << "Choose what do you want to do? [1 to 6]? ";
+    cout << "Choose what do you want to do? [1 to 7]? ";
     short Choice = 0;
     cin >> Choice;
     return (Choice); 
@@ -676,7 +676,10 @@ void ShowTotalBalances()
     cout << "\n_______________________________________________________";
     cout << "_________________________________________\n" << endl;
 
-    cout << "\t\t\t\t\t Total Balances = " << TotalBalances;
+    cout << "\t\t\t\t Total Balances = " << TotalBalances;
+
+        cout << "\n_______________________________________________________";
+    cout << "_________________________________________\n" << endl;
 }
 
 
