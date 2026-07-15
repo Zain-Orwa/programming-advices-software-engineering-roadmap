@@ -6,8 +6,33 @@
 
 using namespace std;
 const std::string ClientsFileName = "Clients.txt";
+const std::string UsersFileName = "Users.txt";
+void Login();
 void ShowMainMenue();
 void ShowTransactionsMenue();
+
+
+enum    enTransactionsMenueOptions
+{
+    eDeposit = 1,
+    eWithdraw = 2,
+    eShowTotalBalance = 3,
+    eShowMainMenue = 4
+};
+
+enum    enMainMenueOptions
+{
+    eListClients  = 1, eAddClient    = 2,
+    eDeleteClient = 3, eUpdateClient = 4, 
+    eFindClient   = 5, eShowTransactionsMenue = 6,
+    eManageUsers  = 7, eExit = 8
+};
+
+enum    enManageUsersMenueOptions
+{
+    eListUsers = 1, eAddNewUser = 2, eDeleteUser = 3,
+    eUpdateUser = 4, eFindUser = 5, eMainMenue = 6
+};
 
 struct sClient 
 {
@@ -18,6 +43,17 @@ struct sClient
     double  AccountBalance;
     bool    MarkForDelete = false;
 };
+
+struct sUser
+{
+    string  UserName;
+    string  Password;
+    int     Permissions;
+    bool    MarkForDelete = false;
+};
+
+sUser CurrentUser;
+
 
 std::vector<std::string> SplitString(std::string str, std::string delim)
 {
@@ -41,6 +77,20 @@ std::vector<std::string> SplitString(std::string str, std::string delim)
     return (vString);
 }
 
+sUser   ConverUserLineToRecord(std::string Line, std::string Separator = "#//#")
+{
+    sUser   User;
+    vector<string> vUserData;
+
+    vUserData = SplitString(Line, Separator);
+
+    User.UserName = vUserData[0];
+    User.Password = vUserData[1];
+    User.Permissions = stoi(vUserData[2]);
+
+    return (User);
+}
+
 sClient ConvertLineToRecord(std::string strLine, std::string Separator = "#//#")
 {
     sClient Client;
@@ -55,6 +105,30 @@ sClient ConvertLineToRecord(std::string strLine, std::string Separator = "#//#")
     Client.AccountBalance = stod(vClientData[4]);
 
    return (Client);
+}
+
+vector<sUser>   LoadUsersDataFromFile(std::string FileName)
+{
+    fstream MyFile;
+    vector<sUser> vUsers;
+
+    MyFile.open(FileName, ios::in);
+
+    if (MyFile.is_open())
+    {
+        std::string Line;
+        sUser User;
+
+        while (getline(MyFile, Line))
+        {
+            User = ConverUserLineToRecord(Line);
+            vUsers.push_back(User);
+        }
+
+        MyFile.close();
+    }
+
+    return (vUsers);
 }
 
 std::vector<sClient> LoadClientsDataFromFile(std::string FileName)
@@ -128,25 +202,10 @@ void    ClearScreen()
         system("clear");
     #endif
 }
-enum    enTransactionsMenueOptions
-{
-    eDeposit = 1,
-    eWithdraw = 2,
-    eShowTotalBalance = 3,
-    eShowMainMenue = 4
-};
-
-enum    enMainMenueOptions
-{
-    eListClients  = 1, eAddClient    = 2,
-    eDeleteClient = 3, eUpdateClient = 4, 
-    eFindClient   = 5, eShowTransactionsMenue = 6,
-    eExit = 7
-};
 
 short   ReadMainMenueOption()
 {
-    cout << "Choose what do you want to do? [1 to 7]? ";
+    cout << "Choose what do you want to do? [1 to 8]? ";
     short Choice = 0;
     cin >> Choice;
     return (Choice); 
@@ -330,6 +389,29 @@ string ReadClientAccountNumber()
     cin >> AccountNumber;
 
     return AccountNumber;
+}
+
+bool    FindUserByUsernameAndPassword(string Username, string Password, sUser& User)
+{
+    vector<sUser> vUsers = LoadUsersDataFromFile(UsersFileName);
+    
+    for (sUser U : vUsers)
+    {
+        if (U.UserName == Username && U.Password == Password)
+        {
+            User = U;
+            return (true);
+        }
+    }
+    return (false);
+}
+
+bool    LoadUserInfo(std::string Username, std::string Password)
+{
+    if (FindUserByUsernameAndPassword(Username, Password, CurrentUser))
+        return (true);
+    else
+        return (false);
 }
 
 bool FindClientByAccountNumber(string AccountNumber, vector <sClient> vClients, sClient& Client)
@@ -725,8 +807,7 @@ void PerfromTranactionsMenueOption(enTransactionsMenueOptions TransactionMenueOp
 
 void ShowTransactionsMenue()
 {
-    system("cls");
-
+    ClearScreen();
     cout << "===========================================\n";
     cout << "\tTransactions Menue Screen\n";
     cout << "===========================================\n";
@@ -737,6 +818,95 @@ void ShowTransactionsMenue()
     cout << "===========================================\n";
 
     PerfromTranactionsMenueOption((enTransactionsMenueOptions)ReadTransactionsMenueOption());
+}
+
+short   ReadManageUsersMenue()
+{
+    short   Choice = 0;
+    cout << "\nChoose what do you want to do? [1 to 6]? ";
+    cin >> Choice;
+    return (Choice);
+}
+
+
+
+void ShowAllUsersScreen()
+{
+    vector<stUser> vUsers = LoadUsersDataFromFile(UsersFileName);
+
+    cout << "\n\t\t\t\t\tUsers List (" << vUsers.size() << ") User(s).";
+
+    cout << "\n_______________________________________________________";
+    cout << "_________________________________________\n" << endl;
+
+    cout << "| " << left << setw(15) << "User Name";
+    cout << "| " << left << setw(10) << "Password";
+    cout << "| " << left << setw(40) << "Permissions";
+
+    cout << "\n_______________________________________________________";
+    cout << "_________________________________________\n" << endl;
+
+    if (vUsers.size() == 0)
+        cout << "\t\t\t\tNo Users Available In the System!";
+    else
+        for (stUser User : vUsers)
+        {
+            PrintUserRecordLine(User);
+            cout << endl;
+        }
+
+    cout << "\n_______________________________________________________";
+    cout << "_________________________________________\n" << endl;
+}
+
+
+
+void    ShowListUsersScreen()
+{
+    ShowAllClientsScreen();
+}
+
+void    PerformManageUsersMenue(enManageUsersMenueOptions ManageUsersMenueOptions)
+{
+    switch (ManageUsersMenueOptions)
+    {
+        case enManageUsersMenueOptions::eListUsers:
+        break;
+
+        case enManageUsersMenueOptions::eAddNewUser:
+        break;
+
+        case enManageUsersMenueOptions::eDeleteUser:
+        break;
+
+        case enManageUsersMenueOptions::eUpdateUser:
+        break;
+
+
+        case enManageUsersMenueOptions::eFindUser:
+        break;
+
+
+        case enManageUsersMenueOptions::eMainMenue:
+        break;
+    }
+}
+
+void    ShowManageUsersMenue()
+{
+    
+
+    ClearScreen();
+    cout << "===========================================\n";
+    cout << "\tManage Users Menue Screen\n";
+    cout << "===========================================\n";
+    cout << "\t[1] List Users.\n";
+    cout << "\t[2] Add New User.\n";
+    cout << "\t[3] Delete User.\n";
+    cout << "\t[4] Update User.\n";
+    cout << "\t[4] Find User.\n";
+    cout << "\t[4] Main Menue.\n";
+    cout << "===========================================\n";
 }
 
 void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
@@ -778,9 +948,15 @@ void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
         ShowTransactionsMenue();
         break;
 
+        case enMainMenueOptions::eManageUsers:
+        ClearScreen();
+        ShowManageUsersMenue();
+        break;
+
         case enMainMenueOptions::eExit:
         ClearScreen();
-        ShowEndScreen();
+        //ShowEndScreen();
+        Login();
         break;
     }
 }
@@ -797,14 +973,69 @@ void    ShowMainMenue()
     cout << "\t[4] Update Client Info.\n";
     cout << "\t[5] Find Client.\n";
     cout << "\t[6] Transactions.\n";
-    cout << "\t[7] Exit.\n";
+    cout << "\t[7] Manage Users.\n";
+    cout << "\t[8] Logout.\n";
     cout << "===========================================\n";
     PerformMainMenueOption((enMainMenueOptions)ReadMainMenueOption());    
 }
 
+
+bool    FindUserByUsernameAndPassword(string Username, string Password, sUser& User)
+{
+    vector<sUser> vUsers = LoadUsersDataFromFile(UsersFileName);
+    
+    for (sUser U : vUsers)
+    {
+        if (U.UserName == Username && U.Password == Password)
+        {
+            User = U;
+            return (true);
+        }
+    }
+    return (false);
+}
+
+bool    LoadUserInfo(std::string Username, std::string Password)
+{
+    if (FindUserByUsernameAndPassword(Username, Password, CurrentUser))
+        return (true);
+    else
+        return (false);
+}
+
+void    Login()
+{
+    bool    LoginFaild = false;
+    string  Username, Password;
+
+    do 
+    {
+        ClearScreen();
+        cout << "===========================================\n";
+        cout << "\t\tLogin Screen\n";
+        cout << "===========================================\n";
+
+        if (LoginFaild)
+        {
+            cout << "\nInvalid Username/Password!\n";
+        }
+
+        std::cout << "\nEnter Username? ";
+        std::cin >> Username;
+
+        std::cout << "\nEnter Password? ";
+        std::cin >> Password;
+
+        LoginFaild = !LoadUserInfo(Username, Password);
+
+    } while (LoginFaild);
+
+    ShowMainMenue();
+}
+
 int main(void)
 {
-    ShowMainMenue();
+    Login();
 
     return (0);
 }
