@@ -1,4 +1,4 @@
-/* */
+/* atm */
 #include "atm.h"
 
 using namespace std;
