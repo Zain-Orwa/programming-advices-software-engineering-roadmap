@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-const string ClientsFileName = "Clients.txt";
+using   namespace std;
+const   string ClientsFileName = "Clients.txt";
 
 struct sClient
 {
@@ -18,6 +18,8 @@ struct sClient
     string Phone;
     double AccountBalance;
 };
+
+sClient CurrentClient; 
 
 //===================== Login =====================//
 int             main();
