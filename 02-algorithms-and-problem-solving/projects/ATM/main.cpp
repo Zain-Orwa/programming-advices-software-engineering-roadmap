@@ -1,6 +1,6 @@
 #include "atm.h"
 
-using namespace std;
+sClient CurrentClient;
 
 int main()
 {

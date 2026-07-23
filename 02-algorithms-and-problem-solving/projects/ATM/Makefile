@@ -8,8 +8,10 @@ SRCS	= atm.cpp \
 		  utils.cpp \
 		  deposit.cpp \
 		  balance.cpp \
+		  file_io.cpp \
 		  withdraw.cpp \
 		  user_inputs.cpp \
+		  find_lookup.cpp \
 		  show_screen.cpp 
 
 OBJS	= $(SRCS:.cpp=.o)

@@ -1,4 +1,5 @@
 #include "atm.h"
+#include <cstdlib> 
 
 
 void    ClearScreen()

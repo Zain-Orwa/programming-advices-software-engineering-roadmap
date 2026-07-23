@@ -1,6 +1,6 @@
 #include "atm.h"
 
-string ConvertRecordToLine(sClient Client, string Seperator = "#//#")
+string ConvertRecordToLine(sClient Client, string Seperator)
 {
 
     string stClientRecord = "";
@@ -15,7 +15,7 @@ string ConvertRecordToLine(sClient Client, string Seperator = "#//#")
 
 }
 
-sClient ConvertLineToRecord(std::string strLine, std::string Separator = "#//#")
+sClient ConvertLineToRecord(std::string strLine, std::string Separator)
 {
     sClient Client;
     std::vector<std::string> vClientData;

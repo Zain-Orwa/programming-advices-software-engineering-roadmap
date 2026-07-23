@@ -26,10 +26,12 @@ void Login()
         cout << "\nEnter Account Number? ";
         cin >> AccountNumber;
 
-        cout << "\nEnter Your Pin Code? ";
+        cout << "\nEnter Pin Code? ";
         cin >> PinCode;
 
         LoginFaild = !LoadClientInfo(AccountNumber, PinCode);
 
     } while (LoginFaild);
+
+        ShowMainMenue();
 }

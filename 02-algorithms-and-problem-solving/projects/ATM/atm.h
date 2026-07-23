@@ -19,10 +19,9 @@ struct sClient
     double AccountBalance;
 };
 
-sClient CurrentClient; 
+extern sClient CurrentClient; 
 
 //===================== Login =====================//
-int             main();
 void            Login();
 
 //==================== User Inputs ================//
@@ -31,7 +30,7 @@ string          ReadPinCode();
 bool            LoadClientInfo(string AccountNumber, string PinCode);
 
 //=================== Find / Lookup ==============//
-bool            FindClientByAccountNumberAndPinCode(string AccountNumber, string PinCode);
+bool            FindClientByAccountNumberAndPinCode(string AccountNumber, string PinCode, sClient& Client);
 
 //=================== utils =======================//
 vector<string>  SplitString(string str, string Delim);
@@ -41,10 +40,10 @@ string          ConvertRecordToLine(sClient Client, string Seperator = "#//#");
 sClient         ConvertLineToRecord(std::string strLine, std::string Separator = "#//#");
 vector<sClient> LoadClientsDataFromFile(string FileName);
 
-//================= Show On Scree (print) ========//
+//================= Show On Screen (print) ========//
+void            ShowMainMenue();
 void            ClearScreen();
 void            LoginScreen();
-
 
 
 

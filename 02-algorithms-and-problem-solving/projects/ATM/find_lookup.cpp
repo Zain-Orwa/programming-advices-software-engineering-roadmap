@@ -10,7 +10,7 @@ bool    FindClientByAccountNumberAndPinCode(string AccountNumber, string PinCode
 
     for (sClient C : vClients)
     {
-        if (C.AccountNumber == AccountNumber)
+        if (C.AccountNumber == AccountNumber && C.PinCode == PinCode)
         {
             Client = C;
             return (true);
