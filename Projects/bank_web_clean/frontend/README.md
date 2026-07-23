@@ -1,16 +1,27 @@
-# Bankana Frontend v8
+# Bankana Frontend v11 — Operation Back Navigation
 
-Replace your current `frontend` folder with this `frontend` folder.
+This version keeps the complete v10 Client List workspace unchanged and adds clear navigation to every operation screen.
 
-Updates:
-- Update Client now starts with account/name lookup.
-- After finding a client, it shows a premium client card with editable fields.
-- Pressing Update shows a confirmation popup before saving.
-- Client count keeps the glowing number without square brackets.
-- Missing clients show a glowing not-found popup.
+- The private centered main menu remains the first screen.
+- The Client List HTML, tools, table, actions, and layout are unchanged from v10.
+- Add, Delete, Update, Find, Transactions, Deposit, Withdraw, Total Balance, and Exit now include a glowing back widget.
+- Most operation back widgets return directly to the Main Menu.
+- **Add New Client is context-aware:**
+  - Opened from the Main Menu → back returns to the Main Menu.
+  - Opened from the Client List → back returns to the Client List.
+- Existing transaction Back buttons still return to the Transactions menu.
+- Backend API code is unchanged.
 
-After replacing, deploy with:
+## Replace
+
+Replace your project `frontend/` folder with this package's `frontend/` folder.
+
+The included `api/clients.rs` is unchanged and is included only so the zip remains a complete Bankana update package.
+
+## Check and deploy
 
 ```bash
+node --check frontend/app.js
+cargo check --bin clients
 vercel --prod
 ```

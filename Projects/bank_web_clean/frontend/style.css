@@ -1359,3 +1359,542 @@ body[data-theme] .screen.active .primary-action {
     .update-card-meta { display: grid; }
     .update-card-meta strong { font-size: 1.2rem; }
 }
+
+/* --- Bankana v9: privacy-first landing menu --- */
+.menu-copy {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+.menu-copy strong {
+    font-size: 1.08rem;
+    font-weight: 900;
+    letter-spacing: -0.018em;
+}
+.menu-copy small {
+    color: var(--soft);
+    font-size: 0.82rem;
+    line-height: 1.25;
+}
+.landing-welcome { display: none; }
+
+body.landing-mode .topbar,
+body.landing-mode .stage-card {
+    display: none;
+}
+body.landing-mode .app-shell {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding-block: 38px;
+}
+body.landing-mode .workspace {
+    display: block;
+    width: min(100%, 850px);
+}
+body.landing-mode .menu-card {
+    position: static;
+    width: 100%;
+    padding: 36px 44px 34px;
+    border-radius: 36px;
+    border-color: rgba(53, 231, 255, 0.42);
+    background:
+        radial-gradient(circle at 88% 8%, rgba(139, 92, 246, 0.22), transparent 38%),
+        radial-gradient(circle at 8% 92%, rgba(53, 231, 255, 0.16), transparent 38%),
+        rgba(4, 12, 29, 0.88);
+    box-shadow:
+        0 0 0 1px rgba(191, 70, 255, 0.16),
+        0 30px 100px rgba(0, 0, 0, 0.52),
+        0 0 42px rgba(53, 231, 255, 0.14),
+        0 0 52px rgba(191, 70, 255, 0.12);
+}
+body.landing-mode .landing-welcome {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    margin-bottom: 28px;
+}
+.landing-bank-icon {
+    width: 72px;
+    height: 72px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 12px;
+    border-radius: 22px;
+    color: #e8faff;
+    font-size: 2rem;
+    border: 1px solid rgba(53, 231, 255, 0.52);
+    background: linear-gradient(145deg, rgba(53, 231, 255, 0.24), rgba(139, 92, 246, 0.34));
+    box-shadow: 0 0 30px rgba(53, 231, 255, 0.22), 0 0 34px rgba(139, 92, 246, 0.2);
+}
+.landing-welcome > span {
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.34em;
+    font-size: 0.8rem;
+    font-weight: 1000;
+}
+.landing-welcome h2 {
+    margin: 9px 0 5px;
+    font-size: clamp(2.4rem, 7vw, 4.3rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    background: linear-gradient(90deg, #35e7ff, #64a8ff 46%, #bf46ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.landing-welcome p {
+    margin: 8px 0 18px;
+    color: #c5d5ef;
+    font-size: 1.05rem;
+}
+.landing-welcome small {
+    color: var(--soft);
+    font-size: 0.96rem;
+}
+body.landing-mode .menu-header {
+    justify-content: center;
+    padding-top: 0;
+}
+body.landing-mode .menu-item {
+    min-height: 92px;
+    padding: 16px 22px;
+    margin-bottom: 14px;
+    border-radius: 22px;
+}
+body.landing-mode .menu-item:hover {
+    transform: translateY(-2px) scale(1.005);
+}
+body.landing-mode .number-orb {
+    width: 58px;
+    height: 58px;
+    font-size: 1.5rem;
+}
+body.landing-mode .menu-copy strong { font-size: 1.2rem; }
+body.landing-mode .menu-copy small { font-size: 0.9rem; }
+body.landing-mode .menu-arrow { opacity: 1; transform: none; }
+body.landing-mode .exit-menu-item { margin-top: 22px; }
+body.landing-mode .tip-card {
+    justify-content: center;
+    text-align: center;
+    margin-top: 24px;
+}
+
+@media (max-width: 760px) {
+    body.landing-mode .app-shell {
+        width: min(100% - 24px, 620px);
+        padding-block: 18px;
+    }
+    body.landing-mode .menu-card {
+        padding: 26px 18px 22px;
+        border-radius: 28px;
+    }
+    body.landing-mode .menu-item {
+        min-height: 84px;
+        padding: 13px 15px;
+    }
+    body.landing-mode .number-orb {
+        width: 52px;
+        height: 52px;
+    }
+    body.landing-mode .menu-copy small { display: block; }
+    .landing-welcome h2 { letter-spacing: 0.1em; }
+}
+
+
+/* =============================================================
+   Bankana v10 — focused client-management workspace
+   ============================================================= */
+
+/* Once a menu option is opened, the landing menu disappears and the
+   selected workspace gets the full width. Client information never sits
+   beside the main menu. */
+body.workspace-mode:not(.landing-mode) .workspace {
+    display: block;
+}
+
+body.workspace-mode:not(.landing-mode) .menu-card {
+    display: none !important;
+}
+
+body.workspace-mode:not(.landing-mode) .stage-card {
+    width: 100%;
+    min-height: 0;
+    padding: 22px;
+}
+
+body.workspace-mode:not(.landing-mode) .screen {
+    min-height: 680px;
+}
+
+.client-workspace-screen {
+    padding: clamp(20px, 3vw, 34px);
+}
+
+.client-screen-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.workspace-back-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 210px;
+    padding: 10px 16px 10px 10px;
+    border: 1px solid rgba(92, 225, 255, 0.38);
+    border-radius: 18px;
+    color: #e9faff;
+    background: linear-gradient(135deg, rgba(10, 51, 79, 0.82), rgba(29, 35, 91, 0.72));
+    box-shadow: 0 0 28px rgba(53, 231, 255, 0.13), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    text-align: left;
+    transition: 180ms ease;
+}
+
+.workspace-back-action:hover {
+    transform: translateX(-4px);
+    border-color: rgba(92, 225, 255, 0.7);
+    box-shadow: 0 0 38px rgba(53, 231, 255, 0.24), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.workspace-back-orb {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 14px;
+    color: #effcff;
+    font-size: 1.45rem;
+    font-weight: 900;
+    background: linear-gradient(145deg, #0369a1, #2563eb 55%, #7c3aed);
+    box-shadow: 0 0 22px rgba(53, 231, 255, 0.4);
+}
+
+.workspace-back-action strong,
+.workspace-back-action small {
+    display: block;
+}
+
+.workspace-back-action strong {
+    font-size: 0.98rem;
+}
+
+.workspace-back-action small {
+    margin-top: 3px;
+    color: #8ca8cf;
+    font-size: 0.72rem;
+}
+
+.client-workspace-title {
+    margin-bottom: 22px;
+}
+
+.client-command-grid {
+    display: grid;
+    grid-template-columns: minmax(300px, 1.7fr) repeat(3, minmax(175px, 0.7fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.client-command-search,
+.client-command-card {
+    min-height: 92px;
+    border: 1px solid rgba(140, 176, 255, 0.17);
+    border-radius: 22px;
+    background: linear-gradient(145deg, rgba(9, 19, 43, 0.88), rgba(14, 25, 58, 0.68));
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 14px 34px rgba(0, 0, 0, 0.18);
+}
+
+.client-command-search {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+}
+
+.command-icon,
+.command-orb {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 16px;
+    color: #eafeff;
+    font-size: 1.4rem;
+    font-weight: 1000;
+    background: linear-gradient(145deg, #075985, #2563eb 55%, #7c3aed);
+    box-shadow: 0 0 24px rgba(53, 231, 255, 0.34);
+}
+
+.command-search-copy {
+    min-width: 0;
+    flex: 1;
+}
+
+.command-search-copy strong {
+    display: block;
+    margin: 0 0 8px 2px;
+    color: #dff8ff;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.command-search-copy input {
+    width: 100%;
+    border: 1px solid rgba(106, 190, 255, 0.22);
+    border-radius: 13px;
+    padding: 10px 12px;
+    color: #edfaff;
+    outline: none;
+    background: rgba(2, 8, 23, 0.72);
+    transition: 180ms ease;
+}
+
+.command-search-copy input:focus {
+    border-color: rgba(53, 231, 255, 0.72);
+    box-shadow: 0 0 0 3px rgba(53, 231, 255, 0.1), 0 0 22px rgba(53, 231, 255, 0.12);
+}
+
+.client-command-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    color: #edf8ff;
+    text-align: left;
+    transition: 180ms ease;
+}
+
+.client-command-card:hover {
+    transform: translateY(-3px);
+}
+
+.client-command-card strong,
+.client-command-card small {
+    display: block;
+}
+
+.client-command-card strong {
+    font-size: 0.94rem;
+}
+
+.client-command-card small {
+    margin-top: 5px;
+    color: #8ca8cf;
+    font-size: 0.74rem;
+    line-height: 1.25;
+}
+
+.command-add {
+    border-color: rgba(52, 245, 168, 0.26);
+}
+.command-add:hover {
+    border-color: rgba(52, 245, 168, 0.7);
+    box-shadow: 0 0 30px rgba(52, 245, 168, 0.16);
+}
+.command-add .command-orb {
+    background: linear-gradient(145deg, #047857, #10b981 50%, #0ea5e9);
+    box-shadow: 0 0 24px rgba(52, 245, 168, 0.34);
+}
+
+.command-update {
+    border-color: rgba(251, 191, 36, 0.24);
+}
+.command-update:hover {
+    border-color: rgba(251, 191, 36, 0.68);
+    box-shadow: 0 0 30px rgba(251, 146, 60, 0.16);
+}
+.command-update .command-orb {
+    background: linear-gradient(145deg, #92400e, #f59e0b 48%, #fb7185);
+    box-shadow: 0 0 24px rgba(251, 146, 60, 0.34);
+}
+
+.command-delete {
+    border-color: rgba(251, 113, 133, 0.26);
+}
+.command-delete:hover {
+    border-color: rgba(251, 113, 133, 0.72);
+    box-shadow: 0 0 30px rgba(244, 63, 94, 0.18);
+}
+.command-delete .command-orb {
+    background: linear-gradient(145deg, #9f1239, #f43f5e 52%, #db2777);
+    box-shadow: 0 0 24px rgba(244, 63, 94, 0.38);
+}
+
+.client-filter-tools {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+}
+
+.client-management-table table {
+    min-width: 950px;
+}
+
+.actions-column {
+    width: 230px;
+    text-align: center;
+}
+
+.client-row-actions {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.client-row-actions .row-action + .row-action {
+    margin-left: 8px;
+}
+
+.row-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 92px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    color: #eefaff;
+    font-size: 0.78rem;
+    font-weight: 900;
+    transition: 160ms ease;
+}
+
+.row-action:hover {
+    transform: translateY(-2px);
+}
+
+.row-update-action {
+    border: 1px solid rgba(251, 191, 36, 0.42);
+    background: linear-gradient(135deg, rgba(146, 64, 14, 0.72), rgba(245, 158, 11, 0.36));
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.12);
+}
+.row-update-action:hover {
+    border-color: rgba(251, 191, 36, 0.82);
+    box-shadow: 0 0 24px rgba(245, 158, 11, 0.22);
+}
+
+.row-delete-action {
+    border: 1px solid rgba(251, 113, 133, 0.42);
+    background: linear-gradient(135deg, rgba(159, 18, 57, 0.7), rgba(244, 63, 94, 0.35));
+    box-shadow: 0 0 18px rgba(244, 63, 94, 0.12);
+}
+.row-delete-action:hover {
+    border-color: rgba(251, 113, 133, 0.82);
+    box-shadow: 0 0 24px rgba(244, 63, 94, 0.22);
+}
+
+@media (max-width: 1120px) {
+    .client-command-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .client-command-search {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 760px) {
+    body.workspace-mode:not(.landing-mode) .topbar {
+        display: flex;
+    }
+
+    body.workspace-mode:not(.landing-mode) .stage-card {
+        display: block !important;
+        padding: 10px;
+        transform: none !important;
+    }
+
+    body.workspace-mode:not(.landing-mode) .screen {
+        display: none;
+        padding: 18px;
+        min-height: 0;
+    }
+
+    body.workspace-mode:not(.landing-mode) .screen.active {
+        display: block;
+    }
+
+    .mobile-menu-back {
+        display: none !important;
+    }
+
+    .client-screen-navigation {
+        align-items: stretch;
+    }
+
+    .workspace-back-action {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .client-command-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .client-command-search {
+        grid-column: auto;
+    }
+
+    .client-filter-tools {
+        grid-template-columns: 1fr;
+    }
+
+    .client-management-table table {
+        min-width: 860px;
+    }
+}
+
+@media (max-width: 520px) {
+    .client-screen-navigation {
+        flex-direction: column;
+    }
+
+    .client-screen-navigation .refresh-glow-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .workspace-back-action {
+        width: 100%;
+    }
+}
+
+
+/* =============================================================
+   Bankana v11 — operation back navigation
+   ============================================================= */
+.operation-screen-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 22px;
+}
+
+.operation-back-action {
+    min-width: 230px;
+}
+
+.exit-screen .operation-screen-navigation {
+    width: 100%;
+    text-align: left;
+}
+
+@media (max-width: 760px) {
+    .operation-screen-navigation {
+        align-items: stretch;
+    }
+
+    .operation-back-action {
+        width: 100%;
+        min-width: 0;
+    }
+}

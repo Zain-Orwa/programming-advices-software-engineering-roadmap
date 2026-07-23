@@ -4,6 +4,7 @@ const state = {
     clients: [],
     pendingConfirm: null,
     selectedUpdateClient: null,
+    addReturnScreen: 'home',
 };
 
 const screens = document.querySelectorAll('.screen');
@@ -34,6 +35,12 @@ const confirmCard = document.querySelector('.confirm-card');
 const questionOrb = document.querySelector('.question-orb');
 const toast = document.querySelector('#toast');
 const mobileMenuBack = document.querySelector('#mobileMenuBack');
+const clientListBack = document.querySelector('#clientListBack');
+const exitReturnHome = document.querySelector('#exitReturnHome');
+const addScreenBack = document.querySelector('#addScreenBack');
+const mainMenuBackButtons = document.querySelectorAll('[data-main-menu-back]');
+const addScreenBackTitle = addScreenBack?.querySelector('strong');
+const addScreenBackDescription = addScreenBack?.querySelector('small');
 const refreshClientsButton = document.querySelector('#refreshClients');
 const refreshBalancesButton = document.querySelector('#refreshBalances');
 const updateLookupForm = document.querySelector('#updateLookupForm');
@@ -45,12 +52,8 @@ const updateSelectedAccount = document.querySelector('#updateSelectedAccount');
 
 const mainKeyScreens = {
     '1': 'list',
-    '2': 'add',
-    '3': 'delete',
-    '4': 'update',
-    '5': 'find',
-    '6': 'transactions',
-    '7': 'exit',
+    '2': 'transactions',
+    '3': 'exit',
 };
 
 const transactionKeyScreens = {
@@ -77,7 +80,7 @@ function isMobileLayout() {
 }
 
 function setScreenTheme(name) {
-    document.body.dataset.theme = themeByScreen[name] || 'list';
+    document.body.dataset.theme = themeByScreen[name] || 'home';
 }
 
 function openMobileScreen() {
@@ -228,7 +231,29 @@ function showToast(message, ok = true) {
     showToast.timeout = window.setTimeout(() => toast.classList.add('hidden'), 3200);
 }
 
+function updateAddBackWidget() {
+    if (!addScreenBack) return;
+
+    const returnsToClientList = state.addReturnScreen === 'list';
+    if (addScreenBackTitle) {
+        addScreenBackTitle.textContent = returnsToClientList ? 'Client List' : 'Main Menu';
+    }
+    if (addScreenBackDescription) {
+        addScreenBackDescription.textContent = returnsToClientList
+            ? 'Return to the client workspace'
+            : 'Return to the home screen';
+    }
+}
+
 function showScreen(name) {
+    const previousScreen = activeScreenName();
+    if (name === 'add' && previousScreen !== 'add') {
+        state.addReturnScreen = previousScreen === 'list' ? 'list' : 'home';
+        updateAddBackWidget();
+    }
+
+    document.body.classList.remove('landing-mode');
+    document.body.classList.add('workspace-mode');
     setScreenTheme(name);
 
     screens.forEach((screen) => {
@@ -254,7 +279,17 @@ function showScreen(name) {
 
 function activeScreenName() {
     const active = document.querySelector('.screen.active');
-    return active ? active.id.replace('screen-', '') : 'list';
+    return active ? active.id.replace('screen-', '') : 'home';
+}
+
+function showMainMenu() {
+    screens.forEach((screen) => screen.classList.remove('active'));
+    menuButtons.forEach((button) => button.classList.remove('active'));
+    document.body.classList.add('landing-mode');
+    document.body.classList.remove('workspace-mode');
+    document.body.classList.remove('mobile-screen-active');
+    setScreenTheme('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function showConfirm({
@@ -323,8 +358,21 @@ navButtons.forEach((button) => {
 });
 
 if (mobileMenuBack) {
-    mobileMenuBack.addEventListener('click', openMobileMenu);
+    mobileMenuBack.addEventListener('click', showMainMenu);
 }
+
+clientListBack?.addEventListener('click', showMainMenu);
+exitReturnHome?.addEventListener('click', showMainMenu);
+mainMenuBackButtons.forEach((button) => button.addEventListener('click', showMainMenu));
+
+addScreenBack?.addEventListener('click', () => {
+    if (state.addReturnScreen === 'list') {
+        showScreen('list');
+        return;
+    }
+
+    showMainMenu();
+});
 
 window.addEventListener('resize', () => {
     if (!isMobileLayout()) {
@@ -465,7 +513,7 @@ function renderClientsTable() {
     if (!clients.length) {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td colspan="4" class="empty-table-cell">No clients match your search or balance filter.</td>
+            <td colspan="5" class="empty-table-cell">No clients match your search or balance filter.</td>
         `;
         clientsTable.appendChild(row);
         return;
@@ -478,6 +526,14 @@ function renderClientsTable() {
             <td>${escapeHtml(client.name)}</td>
             <td>${escapeHtml(client.phone)}</td>
             <td><strong>$${money(client.accountBalance)}</strong></td>
+            <td class="client-row-actions">
+                <button class="row-action row-update-action" type="button" data-client-action="update" data-account="${escapeHtml(client.accountNumber)}" aria-label="Update ${escapeHtml(client.name)}">
+                    <span>✎</span>Update
+                </button>
+                <button class="row-action row-delete-action" type="button" data-client-action="delete" data-account="${escapeHtml(client.accountNumber)}" aria-label="Delete ${escapeHtml(client.name)}">
+                    <span>🗑</span>Delete
+                </button>
+            </td>
         `;
         clientsTable.appendChild(row);
     }
@@ -606,21 +662,17 @@ document.querySelector('#addClientForm').addEventListener('submit', async (event
     }
 });
 
-document.querySelector('#deleteClientForm').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const { accountNumber } = formDataObject(form);
-    const account = accountNumber.trim();
+async function deleteClientByAccount(accountNumber, { resetForm = null } = {}) {
+    const account = String(accountNumber || '').trim();
 
     try {
         await ensureClientsLoaded();
 
-        const client = state.clients.find((client) => client.accountNumber === account);
+        const client = state.clients.find((item) => item.accountNumber === account);
 
         if (!client) {
             await showClientNotFound(account);
-            setMessage('#deleteMessage', '', false);
-            return;
+            return false;
         }
 
         const confirmed = await showConfirm({
@@ -634,27 +686,59 @@ document.querySelector('#deleteClientForm').addEventListener('submit', async (ev
             icon: '🗑',
         });
 
-        if (!confirmed) return;
+        if (!confirmed) return false;
 
         await apiRequest(`/api/clients?accountNumber=${encodeURIComponent(account)}`, {
             method: 'DELETE',
         });
 
-        form.reset();
+        resetForm?.reset();
         setMessage('#deleteMessage', 'Client Deleted Successfully.');
         showToast('Client Deleted Successfully.');
         await loadClients();
         showScreen('list');
+        return true;
     } catch (error) {
         if (String(error.message || '').toLowerCase().includes('not found')) {
             await showClientNotFound(account);
-            setMessage('#deleteMessage', '', false);
-            return;
+            return false;
         }
 
         setMessage('#deleteMessage', `Error: ${error.message}`, false);
         showToast(error.message, false);
+        return false;
     }
+}
+
+clientsTable?.addEventListener('click', async (event) => {
+    const actionButton = event.target.closest('[data-client-action]');
+    if (!actionButton) return;
+
+    const account = actionButton.dataset.account;
+    const client = state.clients.find((item) => item.accountNumber === account);
+
+    if (!client) {
+        await showClientNotFound(account);
+        return;
+    }
+
+    if (actionButton.dataset.clientAction === 'update') {
+        showScreen('update');
+        updateLookupForm?.reset();
+        fillUpdateEditor(client);
+        return;
+    }
+
+    if (actionButton.dataset.clientAction === 'delete') {
+        await deleteClientByAccount(account);
+    }
+});
+
+document.querySelector('#deleteClientForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const { accountNumber } = formDataObject(form);
+    await deleteClientByAccount(accountNumber, { resetForm: form });
 });
 
 updateLookupForm?.addEventListener('submit', async (event) => {
@@ -852,7 +936,6 @@ function startMoneyRain() {
 }
 
 decorateRefreshButtons();
-setScreenTheme(activeScreenName());
+showMainMenu();
 startMoneyRain();
 checkApi();
-loadClients();
