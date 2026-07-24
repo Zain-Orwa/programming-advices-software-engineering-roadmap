@@ -54,3 +54,34 @@ vector<sClient> LoadClientsDataFromFile(std::string FileName)
     return (vClients);
 }
 
+vector <sClient> SaveClientsDataToFile(string FileName, vector <sClient> vClients)
+{
+
+    fstream MyFile;
+    MyFile.open(FileName, ios::out);//overwrite
+
+    string DataLine;
+
+    if (MyFile.is_open())
+    {
+
+        for (sClient C : vClients)
+        {
+
+            if (C.MarkForDelete == false)
+            {
+                //we only write records that are not marked for delete.  
+                DataLine = ConvertRecordToLine(C);
+                MyFile << DataLine << endl;
+
+            }
+
+        }
+
+        MyFile.close();
+
+    }
+
+    return vClients;
+
+}

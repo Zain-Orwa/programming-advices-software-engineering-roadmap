@@ -1,5 +1,27 @@
 #include "atm.h"
 
+bool    WithdrawBalanceToClientByAccountNumber(string AccountNumber, double Ammount, vector<sClient>& vClients)
+{
+    char    Answer = 'n';
+
+    cout << "\nAre You Sure You Want To Perform This Transaction? Y/N? ";
+    cin >> Answer;
+    if (Answer == 'Y' || Answer == 'y')
+    {
+        for (sClient C : vClients)
+        {
+            if (C.AccountNumber == AccountNumber)
+            {
+                C.AccountBalance -= Ammount;
+                SaveClientsDataToFile(ClientsFileName, vClients);
+                cout << "\n\nDone Successfully New Balance is " << C.AccountBalance << endl;
+                return (true);
+            }
+        }
+    }
+    return (false);
+}
+
 void    GoBackToQuickWithdrawMenue()
 {
     std::cout << "\n\nPress any key to go back to Quick Withdraw Screen..." << std::flush;
@@ -48,5 +70,7 @@ void    PerfromQuickWithdrawOption(short QuickWithdrawOption)
         GoBackToQuickWithdrawMenue();
     }
 
-
+    vector <sClient> vClients = LoadClientsDataFromFile(ClientsFileName);
+    WithdrawBalanceToClientByAccountNumber(CurrentClient.AccountNumber, WithdrawAmount, vClients);
+    CurrentClient.AccountBalance -= WithdrawAmount;
 }

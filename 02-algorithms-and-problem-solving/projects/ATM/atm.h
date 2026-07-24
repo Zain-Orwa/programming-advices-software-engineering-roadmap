@@ -31,6 +31,7 @@ struct sClient
     string Name;
     string Phone;
     double AccountBalance;
+    bool   MarkForDelete = false;
 };
 
 extern sClient CurrentClient; 
@@ -51,15 +52,17 @@ vector<string>  SplitString(string str, string Delim);
 string          ConvertRecordToLine(sClient Client, string Seperator = "#//#");
 sClient         ConvertLineToRecord(std::string strLine, std::string Separator = "#//#");
 vector<sClient> LoadClientsDataFromFile(string FileName);
+vector<sClient> SaveClientsDataToFile(string FileName, vector <sClient> vClients);
 bool            LoadClientInfo(string AccountNumber, string PinCode);
 
 //================ Withdraw  ================//
+bool            WithdrawBalanceToClientByAccountNumber(string AccountNumber, double Ammount, sClient& Client);
 void            GoBackToQuickWithdrawMenue();
 short           GetQuickWithdrawAmount(short QuickWithdrawOption);
 void            PerfromQuickWithdrawOption(short QuickWithdrawOption);
 
 //================ Deposit  ================//
-
+bool            DepositBalanceToClientByAccountNumber(string AccountNumber, double Ammount, sClient& Client);
 
 //================= Show Screen (print) ========//
 void            ShowQuickWithdrawScreen();
