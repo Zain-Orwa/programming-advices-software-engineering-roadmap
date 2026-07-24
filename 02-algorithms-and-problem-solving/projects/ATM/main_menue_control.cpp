@@ -35,6 +35,7 @@ void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
 
         case enMainMenueOptions::eCheckBalance:
         ClearScreen();
+        ShowCheckBalanceScreen();
         GoBackToMainMenue();
         break;
 

@@ -48,8 +48,9 @@ vector<sClient> LoadClientsDataFromFile(string FileName);
 bool            LoadClientInfo(string AccountNumber, string PinCode);
 
 //================= Show On Screen (print) ========//
-void            ShowMainMenue();
+void            ShowCheckBalanceScreen();
 void            ClearScreen();
+void            ShowMainMenue();
 void            LoginScreen();
 
 //================ Main Menu Control ================//

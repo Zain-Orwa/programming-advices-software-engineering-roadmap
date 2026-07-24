@@ -2,6 +2,15 @@
 #include <cstdlib> 
 
 
+void    ShowCheckBalanceScreen()
+{
+    ClearScreen();
+    cout << "===========================================\n";
+    cout << "\t\tCheck Balance Screen\n";
+    cout << "===========================================\n";    
+    cout << "\nYour Balance is " << CurrentClient.AccountBalance << endl;
+}
+
 void    ClearScreen()
 {
     #ifdef _WIN32
@@ -33,4 +42,3 @@ void    ShowMainMenue()
     PerformMainMenueOption((enMainMenueOptions)ReadMainMenueOption());    
 }
     
-
