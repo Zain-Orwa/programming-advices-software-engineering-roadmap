@@ -2,6 +2,21 @@
 
 using namespace std;
 
+int     ReadNormalWithdrawAmount()
+{
+    int Amount;
+
+    Amount = 0;
+    cout << "\n\nEnter Amount Multiple Of 5's? ";
+    cin >> Amount;
+    while (Amount % 5 != 0)
+    {
+        cout << "\n\nEnter Amount Multiple Of 5's? ";
+        cin >> Amount;
+    }
+    return (Amount);
+}
+
 short   ReadQuickWithdrawOption()
 {
     short   Choice;

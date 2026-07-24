@@ -26,6 +26,7 @@ void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
 
         case enMainMenueOptions::eNormalWithdraw:
         ClearScreen();
+        ShowNormalWithdrawScreen();
         GoBackToMainMenue();
         break;
 

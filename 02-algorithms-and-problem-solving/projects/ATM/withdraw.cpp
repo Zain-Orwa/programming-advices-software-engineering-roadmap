@@ -1,5 +1,34 @@
 #include "atm.h"
 
+void    GoBackToNormalWithdrawScreen()
+{
+    std::cout << "\n\nPress any key to go back to Normal Withdraw Screen..." << std::flush;
+    #ifdef _WIN32
+        system("pause>nul");
+    #else
+        system("bash -c 'read -rsn1'");   // -s: silent, -n1: one key, no Enter
+    #endif    
+    ShowNormalWithdrawScreen();
+}
+
+void    PerfromNormalWithdrawOption()
+{
+    int WithdrawAmount = ReadNormalWithdrawAmount();
+
+    if (WithdrawAmount > CurrentClient.AccountBalance)
+    {
+        cout << "\nThe Amount Exceed Your Balance, Make Another Choice.\n";
+        GoBackToNormalWithdrawScreen();
+        return ;
+    }
+
+    vector <sClient> vClients = LoadClientsDataFromFile(ClientsFileName);
+    if (WithdrawBalanceToClientByAccountNumber(CurrentClient.AccountNumber, WithdrawAmount, vClients))
+    {
+        CurrentClient.AccountBalance -= WithdrawAmount;
+    }
+}
+
 bool    WithdrawBalanceToClientByAccountNumber(string AccountNumber, double Ammount, vector<sClient>& vClients)
 {
     char    Answer = 'n';
@@ -68,9 +97,12 @@ void    PerfromQuickWithdrawOption(short QuickWithdrawOption)
     {
         cout << "\nThe Amount Exceed Your Balance, Make Another Choice.\n";
         GoBackToQuickWithdrawMenue();
+        return ;
     }
 
     vector <sClient> vClients = LoadClientsDataFromFile(ClientsFileName);
-    WithdrawBalanceToClientByAccountNumber(CurrentClient.AccountNumber, WithdrawAmount, vClients);
-    CurrentClient.AccountBalance -= WithdrawAmount;
+    if (WithdrawBalanceToClientByAccountNumber(CurrentClient.AccountNumber, WithdrawAmount, vClients))
+    {
+        CurrentClient.AccountBalance -= WithdrawAmount;
+    }
 }

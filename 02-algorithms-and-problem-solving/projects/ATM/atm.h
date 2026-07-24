@@ -10,11 +10,6 @@
 using   namespace std;
 const   string ClientsFileName = "Clients.txt";
 
-enum    enQuickWithdrawOptions
-{
-
-};
-
 enum    enMainMenueOptions
 {
     eQuickWithdraw = 1,
@@ -37,6 +32,7 @@ struct sClient
 extern sClient CurrentClient; 
 
 //==================== User Inputs ================//
+int             ReadNormalWithdrawAmount();
 short           ReadQuickWithdrawOption();
 string          ReadAccountNumber();
 string          ReadPinCode();
@@ -56,15 +52,18 @@ vector<sClient> SaveClientsDataToFile(string FileName, vector <sClient> vClients
 bool            LoadClientInfo(string AccountNumber, string PinCode);
 
 //================ Withdraw  ================//
-bool            WithdrawBalanceToClientByAccountNumber(string AccountNumber, double Ammount, sClient& Client);
+void            GoBackToNormalWithdrawScreen();
+void            PerfromNormalWithdrawOption();
+bool            WithdrawBalanceToClientByAccountNumber(string AccountNumber, double Ammount, vector<sClient>& vClients);
 void            GoBackToQuickWithdrawMenue();
 short           GetQuickWithdrawAmount(short QuickWithdrawOption);
 void            PerfromQuickWithdrawOption(short QuickWithdrawOption);
 
 //================ Deposit  ================//
-bool            DepositBalanceToClientByAccountNumber(string AccountNumber, double Ammount, sClient& Client);
+bool            DepositBalanceToClientByAccountNumber(string AccountNumber, double Ammount, vector<sClient>& vClients);
 
 //================= Show Screen (print) ========//
+void            ShowNormalWithdrawScreen();
 void            ShowQuickWithdrawScreen();
 void            ShowCheckBalanceScreen();
 void            ClearScreen();

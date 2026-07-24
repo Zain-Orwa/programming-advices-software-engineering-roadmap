@@ -1,6 +1,14 @@
 #include "atm.h"
 #include <cstdlib> 
 
+void   ShowNormalWithdrawScreen()
+{
+    ClearScreen();
+    cout << "===========================================\n";
+    cout << "\t\tNormal Withdraw Screen\n";
+    cout << "===========================================\n";
+    PerfromNormalWithdrawOption();
+}
 
 void ShowQuickWithdrawScreen()
 {
