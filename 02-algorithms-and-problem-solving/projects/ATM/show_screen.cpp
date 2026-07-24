@@ -2,6 +2,23 @@
 #include <cstdlib> 
 
 
+void ShowQuickWithdrawScreen()
+{
+    ClearScreen();
+    cout << "===========================================\n";
+    cout << "\t\tQucik Withdraw\n";
+    cout << "===========================================\n";
+    cout << "\t[1] 20\t\t[2] 50\n";
+    cout << "\t[3] 100\t\t[4] 200\n";
+    cout << "\t[5] 400\t\t[6] 600\n";
+    cout << "\t[7] 800\t\t[8] 1000\n";
+    cout << "\t[9] Exit\n";
+    cout << "===========================================\n";
+    cout << "Your Balance is " << CurrentClient.AccountBalance;
+
+    PerfromQuickWithdrawOption(ReadQuickWithdrawOption());
+}
+
 void    ShowCheckBalanceScreen()
 {
     ClearScreen();

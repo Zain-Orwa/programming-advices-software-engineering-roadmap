@@ -20,6 +20,7 @@ void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
     {
         case enMainMenueOptions::eQuickWithdraw:
         ClearScreen();
+        ShowQuickWithdrawScreen();
         GoBackToMainMenue();
         break;
 
