@@ -5,7 +5,7 @@ void   ShowNormalWithdrawScreen()
 {
     ClearScreen();
     cout << "===========================================\n";
-    cout << "\t\tNormal Withdraw Screen\n";
+    cout << "\tNormal Withdraw Screen\n";
     cout << "===========================================\n";
     PerfromNormalWithdrawOption();
 }
@@ -56,7 +56,7 @@ void    ShowMainMenue()
 {
     ClearScreen();
     cout << "===========================================\n";
-    cout << "\t\tATM Main Menue Screen\n";
+    cout << "\tATM Main Menue Screen\n";
     cout << "===========================================\n";
     cout << "\t[1] Quick Withdraw.\n";
     cout << "\t[2] Normal Withdraw.\n";
