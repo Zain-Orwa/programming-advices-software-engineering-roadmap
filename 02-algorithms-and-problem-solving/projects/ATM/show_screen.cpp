@@ -1,7 +1,15 @@
 #include "atm.h"
 #include <cstdlib> 
 
-void   ShowNormalWithdrawScreen()
+void    ShowDepositScreen()
+{
+    cout << "===========================================\n";
+    cout << "\t\tDeposit Screen\n";
+    cout << "===========================================\n";
+    PerfromDepositOption();
+}
+
+void    ShowNormalWithdrawScreen()
 {
     ClearScreen();
     cout << "===========================================\n";

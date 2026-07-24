@@ -63,6 +63,7 @@ void            PerfromQuickWithdrawOption(short QuickWithdrawOption);
 bool            DepositBalanceToClientByAccountNumber(string AccountNumber, double Ammount, vector<sClient>& vClients);
 
 //================= Show Screen (print) ========//
+void            ShowDepositScreen();
 void            ShowNormalWithdrawScreen();
 void            ShowQuickWithdrawScreen();
 void            ShowCheckBalanceScreen();
