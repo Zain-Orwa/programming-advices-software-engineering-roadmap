@@ -8,7 +8,7 @@ bool    WithdrawBalanceToClientByAccountNumber(string AccountNumber, double Ammo
     cin >> Answer;
     if (Answer == 'Y' || Answer == 'y')
     {
-        for (sClient C : vClients)
+        for (sClient& C : vClients)
         {
             if (C.AccountNumber == AccountNumber)
             {
