@@ -10,6 +10,15 @@
 using   namespace std;
 const   string ClientsFileName = "Clients.txt";
 
+enum    enMainMenueOptions
+{
+    eQuickWithdraw = 1,
+    eNormalWithdraw = 2,
+    eDeposit = 3,
+    eCheckBalance = 4,
+    eExit = 5
+};
+
 struct sClient
 {
     string AccountNumber;
@@ -21,13 +30,10 @@ struct sClient
 
 extern sClient CurrentClient; 
 
-//===================== Login =====================//
-void            Login();
-
 //==================== User Inputs ================//
 string          ReadAccountNumber();
 string          ReadPinCode();
-bool            LoadClientInfo(string AccountNumber, string PinCode);
+short           ReadMainMenueOption();
 
 //=================== Find / Lookup ==============//
 bool            FindClientByAccountNumberAndPinCode(string AccountNumber, string PinCode, sClient& Client);
@@ -39,14 +45,17 @@ vector<string>  SplitString(string str, string Delim);
 string          ConvertRecordToLine(sClient Client, string Seperator = "#//#");
 sClient         ConvertLineToRecord(std::string strLine, std::string Separator = "#//#");
 vector<sClient> LoadClientsDataFromFile(string FileName);
+bool            LoadClientInfo(string AccountNumber, string PinCode);
 
 //================= Show On Screen (print) ========//
 void            ShowMainMenue();
 void            ClearScreen();
 void            LoginScreen();
 
-
-
+//================ Main Menu Control ================//
+void            Login();
+void            GoBackToMainMenue();
+void            PerformMainMenueOption(enMainMenueOptions option);
 
 
 #endif

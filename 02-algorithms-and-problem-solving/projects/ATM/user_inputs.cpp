@@ -18,3 +18,13 @@ string   ReadPinCode()
     return (PinCode);
 }
 
+short   ReadMainMenueOption()
+{
+    short   Choice;
+
+    Choice = 0;
+    cout << "\nChoose what do you want to do? [1 to 5]? ";
+    cin >> Choice;
+    return (Choice);
+}
+

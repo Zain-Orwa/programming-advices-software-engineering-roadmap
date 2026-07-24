@@ -3,8 +3,7 @@ NAME	= ATM
 CC		= g++
 CFLAGS	= -Wall -Wextra -Werror
 
-SRCS	= atm.cpp \
-		  main.cpp \
+SRCS	= main.cpp \
 		  utils.cpp \
 		  deposit.cpp \
 		  balance.cpp \
@@ -12,7 +11,8 @@ SRCS	= atm.cpp \
 		  withdraw.cpp \
 		  user_inputs.cpp \
 		  find_lookup.cpp \
-		  show_screen.cpp 
+		  show_screen.cpp \
+		  main_menue_control.cpp
 
 OBJS	= $(SRCS:.cpp=.o)
 

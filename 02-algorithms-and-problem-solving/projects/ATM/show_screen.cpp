@@ -28,9 +28,9 @@ void    ShowMainMenue()
     cout << "\t[2] Normal Withdraw.\n";
     cout << "\t[3] Deposit.\n";
     cout << "\t[4] Check Balance.\n";
-    cout << "\t[8] Logout.\n";
+    cout << "\t[5] Logout.\n";
     cout << "===========================================\n";
-    //PerformMainMenueOption((enMainMenueOptions)ReadMainMenueOption());    
+    PerformMainMenueOption((enMainMenueOptions)ReadMainMenueOption());    
 }
     
 
