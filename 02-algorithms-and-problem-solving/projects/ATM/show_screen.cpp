@@ -3,10 +3,11 @@
 
 void    ShowDepositScreen()
 {
+    ClearScreen();
     cout << "===========================================\n";
     cout << "\t\tDeposit Screen\n";
     cout << "===========================================\n";
-    PerfromDepositOption();
+    PerformDepositOption();
 }
 
 void    ShowNormalWithdrawScreen()

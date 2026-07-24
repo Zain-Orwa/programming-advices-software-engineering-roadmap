@@ -21,3 +21,14 @@ bool    DepositBalanceToClientByAccountNumber(string AccountNumber, double Ammou
     }
     return (false);
 }
+
+void    PerformDepositOption()
+{
+    double  DepositAmount = ReadDepositAmount();
+
+    vector <sClient> vClients = LoadClientsDataFromFile(ClientsFileName);
+    if (DepositBalanceToClientByAccountNumber(CurrentClient.AccountNumber, DepositAmount, vClients))
+    {
+        CurrentClient.AccountBalance += DepositAmount;
+    }
+}

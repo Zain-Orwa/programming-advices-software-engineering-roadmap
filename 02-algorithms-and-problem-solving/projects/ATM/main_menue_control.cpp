@@ -32,6 +32,7 @@ void    PerformMainMenueOption(enMainMenueOptions MainMenueOption)
 
         case enMainMenueOptions::eDeposit:
         ClearScreen();
+        ShowDepositScreen();
         GoBackToMainMenue();
         break;
 

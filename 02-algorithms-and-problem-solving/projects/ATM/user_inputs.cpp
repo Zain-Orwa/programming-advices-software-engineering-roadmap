@@ -2,6 +2,20 @@
 
 using namespace std;
 
+double  ReadDepositAmount()
+{
+    double Amount;
+    cout << "\nEnter a positive Deposit Amount? ";
+
+    cin >> Amount;
+    while (Amount <= 0)
+    {
+        cout << "\nEnter a positive Deposit Amount? ";
+        cin >> Amount;
+    }
+    return Amount;
+}
+
 int     ReadNormalWithdrawAmount()
 {
     int Amount;

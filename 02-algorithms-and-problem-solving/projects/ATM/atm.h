@@ -32,6 +32,7 @@ struct sClient
 extern sClient CurrentClient; 
 
 //==================== User Inputs ================//
+double          ReadDepositAmount();
 int             ReadNormalWithdrawAmount();
 short           ReadQuickWithdrawOption();
 string          ReadAccountNumber();
@@ -61,6 +62,7 @@ void            PerfromQuickWithdrawOption(short QuickWithdrawOption);
 
 //================ Deposit  ================//
 bool            DepositBalanceToClientByAccountNumber(string AccountNumber, double Ammount, vector<sClient>& vClients);
+void            PerformDepositOption();
 
 //================= Show Screen (print) ========//
 void            ShowDepositScreen();
