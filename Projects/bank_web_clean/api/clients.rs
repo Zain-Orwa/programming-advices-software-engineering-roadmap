@@ -1,3 +1,6 @@
+#[path = "../src/auth.rs"]
+mod auth;
+
 use http_body_util::BodyExt;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -44,7 +47,7 @@ async fn main() -> Result<(), Error> {
 
 async fn handler(req: Request) -> Result<Value, Error> {
     match req.method().as_str() {
-        "GET" => get_clients().await,
+        "GET" => get_clients(req).await,
         "POST" => add_client(req).await,
         "DELETE" => delete_client(req).await,
         "PUT" => update_client(req).await,
@@ -90,16 +93,20 @@ fn row_to_client(row: sqlx::postgres::PgRow) -> Client {
     }
 }
 
-async fn get_clients() -> Result<Value, Error> {
+async fn get_clients(req: Request) -> Result<Value, Error> {
+    let claims = auth::verify_request(&req).await?;
     let pool = connect_db().await?;
+    let organization_id = auth::organization_for_permission(&pool, &claims.sub, "clients.view").await?;
 
     let rows = sqlx::query(
         r#"
         SELECT account_number, name, phone, account_balance
         FROM clients
+        WHERE organization_id = $1::uuid
         ORDER BY account_number
         "#,
     )
+    .bind(&organization_id)
     .fetch_all(&pool)
     .await?;
 
@@ -109,17 +116,27 @@ async fn get_clients() -> Result<Value, Error> {
 }
 
 async fn add_client(req: Request) -> Result<Value, Error> {
+    let claims = auth::verify_request(&req).await?;
+    let pool = connect_db().await?;
+    let organization_id = auth::organization_for_permission(&pool, &claims.sub, "clients.create").await?;
     let body = req.into_body().collect().await?.to_bytes();
     let client: ClientInput = serde_json::from_slice(&body)?;
 
-    let pool = connect_db().await?;
 
     sqlx::query(
         r#"
-        INSERT INTO clients (account_number, pin_code, name, phone, account_balance)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO clients (
+            organization_id,
+            account_number,
+            pin_code,
+            name,
+            phone,
+            account_balance
+        )
+        VALUES ($1::uuid, $2, $3, $4, $5, $6)
         "#,
     )
+    .bind(&organization_id)
     .bind(client.account_number.trim())
     .bind(client.pin_code)
     .bind(client.name.trim())
@@ -132,17 +149,21 @@ async fn add_client(req: Request) -> Result<Value, Error> {
 }
 
 async fn delete_client(req: Request) -> Result<Value, Error> {
+    let claims = auth::verify_request(&req).await?;
+    let pool = connect_db().await?;
+    let organization_id = auth::organization_for_permission(&pool, &claims.sub, "clients.delete").await?;
     let account_number = query_param(&req, "accountNumber").ok_or("Missing accountNumber")?;
 
-    let pool = connect_db().await?;
 
     let row = sqlx::query(
         r#"
         DELETE FROM clients
-        WHERE account_number = $1
+        WHERE organization_id = $1::uuid
+          AND account_number = $2
         RETURNING account_number, name, phone, account_balance
         "#,
     )
+    .bind(&organization_id)
     .bind(account_number.trim())
     .fetch_optional(&pool)
     .await?;
@@ -157,25 +178,29 @@ async fn delete_client(req: Request) -> Result<Value, Error> {
 }
 
 async fn update_client(req: Request) -> Result<Value, Error> {
+    let claims = auth::verify_request(&req).await?;
+    let pool = connect_db().await?;
+    let organization_id = auth::organization_for_permission(&pool, &claims.sub, "clients.update").await?;
     let account_number = query_param(&req, "accountNumber").ok_or("Missing accountNumber")?;
     let body = req.into_body().collect().await?.to_bytes();
     let client: ClientUpdateInput = serde_json::from_slice(&body)?;
     let pin_code = client.pin_code.unwrap_or_default();
 
-    let pool = connect_db().await?;
 
     let row = sqlx::query(
         r#"
         UPDATE clients
         SET
-            pin_code = CASE WHEN $2 = '' THEN pin_code ELSE $2 END,
-            name = $3,
-            phone = $4,
-            account_balance = $5
-        WHERE account_number = $1
+            pin_code = CASE WHEN $3 = '' THEN pin_code ELSE $3 END,
+            name = $4,
+            phone = $5,
+            account_balance = $6
+        WHERE organization_id = $1::uuid
+          AND account_number = $2
         RETURNING account_number, name, phone, account_balance
         "#,
     )
+    .bind(&organization_id)
     .bind(account_number.trim())
     .bind(pin_code.trim())
     .bind(client.name.trim())

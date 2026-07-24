@@ -3,14 +3,13 @@ use vercel_runtime::{run, service_fn, Error, Request};
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let service = service_fn(handler);
-    run(service).await
+    run(service_fn(handler)).await
 }
 
-async fn handler(_req: Request) -> Result<Value, Error> {
+async fn handler(_request: Request) -> Result<Value, Error> {
     Ok(json!({
-        "status": "ok",
-        "app": "Bankana",
-        "message": "Rust API is working"
+        "app": "System Bank",
+        "message": "Rust API is working",
+        "status": "ok"
     }))
 }

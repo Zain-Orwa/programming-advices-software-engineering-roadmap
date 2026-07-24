@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bankana</title>
+    <title>System Bank</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 <body data-theme="home" class="landing-mode">
@@ -18,12 +18,70 @@
         <span class="wave wave-two"></span>
     </div>
 
-    <main class="app-shell">
+
+    <section class="auth-gate" id="authGate" aria-label="System Bank authentication">
+        <div class="auth-shell">
+            <div class="auth-brand">
+                <div class="auth-logo">▰</div>
+                <span>Welcome to</span>
+                <h1>System Bank</h1>
+                <p>Secure access to your organization workspace</p>
+            </div>
+
+            <div class="auth-card">
+                <div class="auth-tabs" role="tablist" aria-label="Authentication options">
+                    <button class="auth-tab active" id="signInTab" type="button">Sign In</button>
+                    <button class="auth-tab" id="signUpTab" type="button">Create Account</button>
+                </div>
+
+                <form id="signInForm" class="auth-form" autocomplete="on">
+                    <label>
+                        <span>Email</span>
+                        <input name="email" type="email" autocomplete="email" required placeholder="name@company.com" />
+                    </label>
+                    <label>
+                        <span>Password</span>
+                        <input name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters" />
+                    </label>
+                    <label class="auth-check">
+                        <input name="rememberMe" type="checkbox" checked />
+                        <span>Keep me signed in</span>
+                    </label>
+                    <button class="auth-submit" type="submit">Sign In</button>
+                </form>
+
+                <form id="signUpForm" class="auth-form hidden" autocomplete="on">
+                    <label>
+                        <span>Full Name</span>
+                        <input name="name" autocomplete="name" required placeholder="Your full name" />
+                    </label>
+                    <label>
+                        <span>Organization Name</span>
+                        <input name="organizationName" autocomplete="organization" required placeholder="Your company or workspace" />
+                    </label>
+                    <label>
+                        <span>Email</span>
+                        <input name="email" type="email" autocomplete="email" required placeholder="name@company.com" />
+                    </label>
+                    <label>
+                        <span>Password</span>
+                        <input name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters" />
+                    </label>
+                    <button class="auth-submit" type="submit">Create Account</button>
+                </form>
+
+                <p class="auth-message" id="authMessage" aria-live="polite"></p>
+                <small class="auth-security-note">Authentication is managed securely by Neon Auth.</small>
+            </div>
+        </div>
+    </section>
+
+    <main class="app-shell auth-hidden" id="applicationShell">
         <header class="topbar">
             <div class="brand-block">
                 <div class="brand-mark">B</div>
                 <div>
-                    <h1>Bankana</h1>
+                    <h1>System Bank</h1>
                     <p>Modern Banking Experience</p>
                 </div>
             </div>
@@ -36,6 +94,12 @@
                 </div>
                 <i></i>
             </div>
+
+            <div class="session-user hidden" id="sessionUser">
+                <span class="session-avatar" id="sessionAvatar">U</span>
+                <span><strong id="sessionUserName">User</strong><small id="sessionUserEmail"></small></span>
+                <button id="signOutButton" type="button">Sign Out</button>
+            </div>
         </header>
 
         <section class="workspace">
@@ -43,7 +107,7 @@
                 <div class="landing-welcome" aria-hidden="true">
                     <div class="landing-bank-icon">▰</div>
                     <span>Welcome to</span>
-                    <h2>Bankana</h2>
+                    <h2>System Bank</h2>
                     <p>Learning Bank System</p>
                     <small>Please choose an option from the menu below</small>
                 </div>

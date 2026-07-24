@@ -10,6 +10,8 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres"] }
 http-body-util = "0.1"
+jsonwebtoken = "9"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 
 [[bin]]
 name = "health"
@@ -22,6 +24,10 @@ path = "api/clients.rs"
 [[bin]]
 name = "balances_total"
 path = "api/balances/total.rs"
+
+[[bin]]
+name = "onboarding"
+path = "api/onboarding.rs"
 
 [profile.release]
 codegen-units = 1

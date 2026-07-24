@@ -1,87 +1,54 @@
-# Bank Web Learning Project
+# System Bank v17 — Tenant Identity
 
-This version avoids external C++ dependencies. There is no `nlohmann/json.hpp` and no `httplib.h`.
+This version completes authenticated tenant selection for the client API.
 
-Folder structure:
+## What changes
 
-```txt
-bank_web/
-  .vscode/
-    c_cpp_properties.json
-    settings.json
-  backend/
-    CMakeLists.txt
-    include/
-      BankService.h
-      Client.h
-      HttpServer.h
-      Json.h
-      Routes.h
-      Storage.h
-    src/
-      BankService.cpp
-      Client.cpp
-      HttpServer.cpp
-      Json.cpp
-      Routes.cpp
-      Storage.cpp
-      main.cpp
-    data/
-      Clients.txt
-  frontend/
-    index.html
-    app.js
-    style.css
+- No organization UUID is hardcoded in Rust or JavaScript.
+- The first authenticated account claims the existing unclaimed workspace that already contains client records.
+- Every later new account receives a separate empty organization.
+- Returning users keep their existing organization membership.
+- Every client CRUD request verifies the Neon Auth JWT and checks a database permission.
+- The browser refreshes expiring access tokens without storing them in local storage.
+- The old database default organization is removed so an unscoped insert cannot silently enter a shared workspace.
+
+## Replace
+
+- `frontend/app.js`
+- `api/clients.rs`
+- `api/onboarding.rs`
+- `src/auth.rs`
+- `Cargo.toml`
+
+Keep your other project files unchanged. The included `frontend/index.html` and `frontend/style.css` are unchanged from v16.
+
+## Run the migration
+
+In the Neon SQL Editor, run:
+
+```text
+migrations/002_finalize_tenant_isolation.sql
 ```
 
-## Run backend
+The final verification should show:
 
-Open a terminal from the project root:
+- `organization_id` is not nullable
+- `column_default` is null
+- `clients_without_organization` is `0`
+
+## Check locally
 
 ```bash
-cd backend
-cmake -S . -B build
-cmake --build build
-./build/bank_api
+node --check frontend/app.js
+cargo check --bin clients --bin onboarding
 ```
 
-The API runs at:
-
-```txt
-http://localhost:8080
-```
-
-Test it:
+## Deploy
 
 ```bash
-curl http://localhost:8080/api/health
-curl http://localhost:8080/api/clients
+vercel --prod
 ```
 
-## Run frontend
+## First-account behaviour
 
-Open `frontend/index.html` in the browser, or use the VS Code Live Server extension.
-
-## API routes
-
-```txt
-GET    /api/health
-GET    /api/clients
-GET    /api/clients/{accountNumber}
-POST   /api/clients
-PUT    /api/clients/{accountNumber}
-DELETE /api/clients/{accountNumber}
-POST   /api/clients/{accountNumber}/deposit
-POST   /api/clients/{accountNumber}/withdraw
-GET    /api/balances/total
-```
-
-Example add client:
-
-```bash
-curl -X POST http://localhost:8080/api/clients \
-  -H "Content-Type: application/json" \
-  -d '{"accountNumber":"1003","pinCode":"1111","name":"Test Client","phone":"0600000003","accountBalance":500}'
-```
-
-This project is for learning only. Do not use real banking or private data.
+Create or sign in with the account that should own the existing System Bank client list first. That account claims the only unclaimed organization containing existing client records. New accounts created afterward start with empty client lists.

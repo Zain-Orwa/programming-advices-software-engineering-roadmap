@@ -1,5 +1,231 @@
 const API_BASE_URL = '';
 
+
+const NEON_AUTH_URL = 'https://ep-crimson-paper-atg05k9o.neonauth.c-9.us-east-1.aws.neon.tech/neondb/auth';
+
+const authState = { accessToken: null, tokenExpiresAt: 0, organization: null };
+
+const authGate = document.querySelector('#authGate');
+const applicationShell = document.querySelector('#applicationShell');
+const signInTab = document.querySelector('#signInTab');
+const signUpTab = document.querySelector('#signUpTab');
+const signInForm = document.querySelector('#signInForm');
+const signUpForm = document.querySelector('#signUpForm');
+const authMessage = document.querySelector('#authMessage');
+const sessionUser = document.querySelector('#sessionUser');
+const sessionUserName = document.querySelector('#sessionUserName');
+const sessionUserEmail = document.querySelector('#sessionUserEmail');
+const sessionAvatar = document.querySelector('#sessionAvatar');
+const signOutButton = document.querySelector('#signOutButton');
+
+function setAuthMode(mode) {
+    const signingUp = mode === 'signup';
+    signInTab?.classList.toggle('active', !signingUp);
+    signUpTab?.classList.toggle('active', signingUp);
+    signInForm?.classList.toggle('hidden', signingUp);
+    signUpForm?.classList.toggle('hidden', !signingUp);
+    setAuthMessage('');
+}
+
+function setAuthMessage(message, ok = true) {
+    if (!authMessage) return;
+    authMessage.textContent = message;
+    authMessage.classList.toggle('bad', !ok);
+}
+
+async function authRequest(path, options = {}) {
+    const response = await fetch(`${NEON_AUTH_URL}${path}`, {
+        ...options,
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(options.headers || {}),
+        },
+    });
+
+    const text = await response.text();
+    let payload = null;
+    try { payload = text ? JSON.parse(text) : null; } catch { payload = { message: text }; }
+
+    if (!response.ok) {
+        const message = payload?.message || payload?.error?.message || payload?.error || `Authentication failed (${response.status})`;
+        throw new Error(message);
+    }
+    return payload;
+}
+
+function tokenFromPayload(payload) {
+    if (typeof payload === 'string') return payload;
+    return payload?.token
+        || payload?.data?.token
+        || payload?.session?.access_token
+        || payload?.data?.session?.access_token
+        || payload?.access_token
+        || null;
+}
+
+function tokenExpiration(token) {
+    try {
+        const encodedPayload = token.split('.')[1];
+        const normalized = encodedPayload.replaceAll('-', '+').replaceAll('_', '/');
+        const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+        const payload = JSON.parse(atob(padded));
+        return Number(payload.exp || 0) * 1000;
+    } catch {
+        return 0;
+    }
+}
+
+function saveAccessToken(token) {
+    authState.accessToken = token || null;
+    authState.tokenExpiresAt = token ? tokenExpiration(token) : 0;
+    return authState.accessToken;
+}
+
+async function refreshAccessToken(sessionData = null, force = false) {
+    const hasFreshToken = authState.accessToken
+        && authState.tokenExpiresAt > Date.now() + 60_000;
+
+    if (!force && hasFreshToken) return authState.accessToken;
+
+    try {
+        const tokenData = await authRequest('/token', { method: 'GET', headers: {} });
+        const token = tokenFromPayload(tokenData);
+        if (token) return saveAccessToken(token);
+    } catch {
+        // A newly created session may already contain the token.
+    }
+
+    const fallbackToken = tokenFromPayload(sessionData);
+    if (fallbackToken) return saveAccessToken(fallbackToken);
+
+    saveAccessToken(null);
+    throw new Error('Your secure session is unavailable. Please sign in again.');
+}
+
+async function enterAuthenticatedApp(sessionData, organizationName = null) {
+    const user = sessionData?.user || sessionData?.data?.user || sessionData?.session?.user;
+    if (!user) return false;
+
+    await refreshAccessToken(sessionData, true);
+
+    const onboarding = await apiRequest('/api/onboarding', {
+        method: 'POST',
+        body: JSON.stringify({
+            organizationName,
+            displayName: user.name || '',
+        }),
+    });
+    authState.organization = onboarding.organization;
+
+    authGate?.classList.add('hidden');
+    applicationShell?.classList.remove('auth-hidden');
+    sessionUser?.classList.remove('hidden');
+    if (sessionUserName) sessionUserName.textContent = user.name || 'System Bank User';
+    if (sessionUserEmail) {
+        const orgName = onboarding.organization?.name;
+        sessionUserEmail.textContent = orgName ? `${user.email || ''} · ${orgName}` : (user.email || '');
+    }
+    if (sessionAvatar) sessionAvatar.textContent = String(user.name || user.email || 'U').charAt(0).toUpperCase();
+    return true;
+}
+
+function openAuthGate() {
+    applicationShell?.classList.add('auth-hidden');
+    sessionUser?.classList.add('hidden');
+    authGate?.classList.remove('hidden');
+    document.body.classList.add('landing-mode');
+}
+
+async function checkAuthSession() {
+    try {
+        const session = await authRequest('/get-session', { method: 'GET', headers: {} });
+        if (!(await enterAuthenticatedApp(session, sessionStorage.getItem('pendingOrganizationName')))) openAuthGate();
+        sessionStorage.removeItem('pendingOrganizationName');
+    } catch {
+        saveAccessToken(null);
+        authState.organization = null;
+        openAuthGate();
+    }
+}
+
+signInTab?.addEventListener('click', () => setAuthMode('signin'));
+signUpTab?.addEventListener('click', () => setAuthMode('signup'));
+
+signInForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const submit = signInForm.querySelector('button[type="submit"]');
+    const values = Object.fromEntries(new FormData(signInForm).entries());
+    submit.disabled = true;
+    setAuthMessage('Signing in…');
+    try {
+        await authRequest('/sign-in/email', {
+            method: 'POST',
+            body: JSON.stringify({
+                email: values.email,
+                password: values.password,
+                rememberMe: values.rememberMe === 'on',
+            }),
+        });
+        const session = await authRequest('/get-session', { method: 'GET', headers: {} });
+        if (!(await enterAuthenticatedApp(session))) throw new Error('Session was not created.');
+        setAuthMessage('');
+    } catch (error) {
+        setAuthMessage(error.message || 'Unable to sign in.', false);
+    } finally {
+        submit.disabled = false;
+    }
+});
+
+signUpForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const submit = signUpForm.querySelector('button[type="submit"]');
+    const values = Object.fromEntries(new FormData(signUpForm).entries());
+    submit.disabled = true;
+    setAuthMessage('Creating your account…');
+    try {
+        await authRequest('/sign-up/email', {
+            method: 'POST',
+            body: JSON.stringify({
+                name: values.name,
+                email: values.email,
+                password: values.password,
+                callbackURL: window.location.origin,
+            }),
+        });
+        sessionStorage.setItem('pendingOrganizationName', values.organizationName);
+        const session = await authRequest('/get-session', { method: 'GET', headers: {} });
+        if (!(await enterAuthenticatedApp(session, values.organizationName))) {
+            setAuthMode('signin');
+            setAuthMessage('Account created. Verify your email if requested, then sign in.');
+            return;
+        }
+        sessionStorage.removeItem('pendingOrganizationName');
+        setAuthMessage('');
+    } catch (error) {
+        setAuthMessage(error.message || 'Unable to create account.', false);
+    } finally {
+        submit.disabled = false;
+    }
+});
+
+signOutButton?.addEventListener('click', async () => {
+    signOutButton.disabled = true;
+    try {
+        await authRequest('/sign-out', { method: 'POST', body: '{}' });
+    } catch {
+        // Always close the local UI even if the remote session has expired.
+    } finally {
+        signOutButton.disabled = false;
+        saveAccessToken(null);
+        authState.organization = null;
+        openAuthGate();
+        setAuthMode('signin');
+        setAuthMessage('You have signed out.');
+    }
+});
+
+
 const state = {
     clients: [],
     pendingConfirm: null,
@@ -401,22 +627,37 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-async function apiRequest(path, options = {}) {
+async function apiRequest(path, options = {}, mayRetry = true) {
     const requestOptions = { ...options };
+    const requiresAuthentication = path !== '/api/health';
 
-    if (requestOptions.body) {
-        requestOptions.headers = {
-            'Content-Type': 'application/json',
-            ...(requestOptions.headers || {}),
-        };
+    if (requiresAuthentication) {
+        await refreshAccessToken();
     }
+
+    requestOptions.headers = {
+        ...(requestOptions.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(authState.accessToken ? { Authorization: `Bearer ${authState.accessToken}` } : {}),
+        ...(requestOptions.headers || {}),
+    };
 
     const response = await fetch(`${API_BASE_URL}${path}`, requestOptions);
     const text = await response.text();
-    const data = text ? JSON.parse(text) : {};
+    let data = {};
+
+    try {
+        data = text ? JSON.parse(text) : {};
+    } catch {
+        data = { error: text || 'Request failed.' };
+    }
 
     if (!response.ok) {
-        throw new Error(data.error || 'Request failed.');
+        if (requiresAuthentication && mayRetry && [401, 403].includes(response.status)) {
+            await refreshAccessToken(null, true);
+            return apiRequest(path, options, false);
+        }
+
+        throw new Error(data.error || data.message || `Request failed (${response.status}).`);
     }
 
     return data;
