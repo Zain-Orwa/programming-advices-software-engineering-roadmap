@@ -1,16 +1,26 @@
 const API_BASE_URL = '';
 
-
-const NEON_AUTH_URL = 'https://ep-crimson-paper-atg05k9o.neonauth.c-9.us-east-1.aws.neon.tech/neondb/auth';
+// Authentication is proxied through our own Vercel domain. This avoids
+// cross-site session-cookie blocking in privacy-focused browsers.
+const AUTH_PROXY_URL = '/api/auth';
 
 const authState = { accessToken: null, tokenExpiresAt: 0, organization: null };
+const initialAuthQuery = new URLSearchParams(window.location.search);
+let passwordResetToken = initialAuthQuery.get('token');
+const passwordResetError = initialAuthQuery.get('error');
 
 const authGate = document.querySelector('#authGate');
 const applicationShell = document.querySelector('#applicationShell');
+const authTabs = document.querySelector('#authTabs');
 const signInTab = document.querySelector('#signInTab');
 const signUpTab = document.querySelector('#signUpTab');
 const signInForm = document.querySelector('#signInForm');
 const signUpForm = document.querySelector('#signUpForm');
+const recoveryForm = document.querySelector('#recoveryForm');
+const resetPasswordForm = document.querySelector('#resetPasswordForm');
+const forgotPasswordButton = document.querySelector('#forgotPasswordButton');
+const recoveryBackButton = document.querySelector('#recoveryBackButton');
+const resetBackButton = document.querySelector('#resetBackButton');
 const authMessage = document.querySelector('#authMessage');
 const sessionUser = document.querySelector('#sessionUser');
 const sessionUserName = document.querySelector('#sessionUserName');
@@ -19,11 +29,18 @@ const sessionAvatar = document.querySelector('#sessionAvatar');
 const signOutButton = document.querySelector('#signOutButton');
 
 function setAuthMode(mode) {
+    const signingIn = mode === 'signin';
     const signingUp = mode === 'signup';
-    signInTab?.classList.toggle('active', !signingUp);
+    const recovering = mode === 'recovery';
+    const resetting = mode === 'reset';
+
+    authTabs?.classList.toggle('hidden', recovering || resetting);
+    signInTab?.classList.toggle('active', signingIn);
     signUpTab?.classList.toggle('active', signingUp);
-    signInForm?.classList.toggle('hidden', signingUp);
+    signInForm?.classList.toggle('hidden', !signingIn);
     signUpForm?.classList.toggle('hidden', !signingUp);
+    recoveryForm?.classList.toggle('hidden', !recovering);
+    resetPasswordForm?.classList.toggle('hidden', !resetting);
     setAuthMessage('');
 }
 
@@ -33,12 +50,42 @@ function setAuthMessage(message, ok = true) {
     authMessage.classList.toggle('bad', !ok);
 }
 
+function normalizedEmail(value) {
+    return String(value || '').trim().toLowerCase();
+}
+
+function authErrorMessage(payload, status) {
+    const code = String(payload?.code || payload?.error?.code || '').toUpperCase();
+    const rawMessage = String(payload?.message || payload?.error?.message || payload?.error || '').trim();
+
+    const messages = {
+        INVALID_EMAIL_OR_PASSWORD: 'Invalid email or password.',
+        USER_ALREADY_EXISTS: 'An account already exists for this email. Try signing in or resetting the password.',
+        USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: 'An account already exists for this email. Try signing in or resetting the password.',
+        EMAIL_NOT_VERIFIED: 'Please verify your email before signing in.',
+        INVALID_TOKEN: 'This password-reset link is invalid or expired. Request a new one.',
+        TOKEN_EXPIRED: 'This password-reset link has expired. Request a new one.',
+        PASSWORD_TOO_SHORT: 'The password must contain at least 8 characters.',
+        PASSWORD_TOO_LONG: 'The password cannot exceed 128 characters.',
+        TOO_MANY_REQUESTS: 'Too many attempts. Wait a moment and try again.',
+    };
+
+    if (messages[code]) return messages[code];
+    if (status === 401) return 'Invalid email or password.';
+    if (status === 403) return rawMessage || 'Please verify your email before continuing.';
+    if (status === 429) return 'Too many attempts. Wait a moment and try again.';
+    if (!rawMessage || rawMessage.toLowerCase() === 'builder error') {
+        return `Authentication could not complete the request${status ? ` (${status})` : ''}. Please try again.`;
+    }
+    return rawMessage;
+}
+
 async function authRequest(path, options = {}) {
-    const response = await fetch(`${NEON_AUTH_URL}${path}`, {
+    const response = await fetch(`${AUTH_PROXY_URL}?path=${encodeURIComponent(path)}`, {
         ...options,
-        credentials: 'include',
+        credentials: 'same-origin',
         headers: {
-            'Content-Type': 'application/json',
+            ...(options.body ? { 'Content-Type': 'application/json' } : {}),
             ...(options.headers || {}),
         },
     });
@@ -48,8 +95,7 @@ async function authRequest(path, options = {}) {
     try { payload = text ? JSON.parse(text) : null; } catch { payload = { message: text }; }
 
     if (!response.ok) {
-        const message = payload?.message || payload?.error?.message || payload?.error || `Authentication failed (${response.status})`;
-        throw new Error(message);
+        throw new Error(authErrorMessage(payload, response.status));
     }
     return payload;
 }
@@ -89,7 +135,7 @@ async function refreshAccessToken(sessionData = null, force = false) {
     if (!force && hasFreshToken) return authState.accessToken;
 
     try {
-        const tokenData = await authRequest('/token', { method: 'GET', headers: {} });
+        const tokenData = await authRequest('/token', { method: 'GET' });
         const token = tokenFromPayload(tokenData);
         if (token) return saveAccessToken(token);
     } catch {
@@ -121,6 +167,7 @@ async function enterAuthenticatedApp(sessionData, organizationName = null) {
     authGate?.classList.add('hidden');
     applicationShell?.classList.remove('auth-hidden');
     sessionUser?.classList.remove('hidden');
+    document.body.classList.remove('landing-mode');
     if (sessionUserName) sessionUserName.textContent = user.name || 'System Bank User';
     if (sessionUserEmail) {
         const orgName = onboarding.organization?.name;
@@ -137,20 +184,62 @@ function openAuthGate() {
     document.body.classList.add('landing-mode');
 }
 
+function clearAuthQuery() {
+    const cleanUrl = `${window.location.pathname}${window.location.hash || ''}`;
+    window.history.replaceState({}, document.title, cleanUrl);
+    passwordResetToken = null;
+}
+
 async function checkAuthSession() {
+    if (passwordResetToken) {
+        openAuthGate();
+        setAuthMode('reset');
+        return;
+    }
+
+    if (passwordResetError) {
+        openAuthGate();
+        setAuthMode('recovery');
+        setAuthMessage('That reset link is invalid or expired. Request a new one.', false);
+        return;
+    }
+
     try {
-        const session = await authRequest('/get-session', { method: 'GET', headers: {} });
+        const session = await authRequest('/get-session', { method: 'GET' });
         if (!(await enterAuthenticatedApp(session, sessionStorage.getItem('pendingOrganizationName')))) openAuthGate();
         sessionStorage.removeItem('pendingOrganizationName');
     } catch {
         saveAccessToken(null);
         authState.organization = null;
         openAuthGate();
+        setAuthMode('signin');
     }
 }
 
 signInTab?.addEventListener('click', () => setAuthMode('signin'));
 signUpTab?.addEventListener('click', () => setAuthMode('signup'));
+forgotPasswordButton?.addEventListener('click', () => {
+    const signInEmail = signInForm?.elements?.email?.value;
+    if (signInEmail && recoveryForm?.elements?.email) recoveryForm.elements.email.value = signInEmail;
+    setAuthMode('recovery');
+});
+recoveryBackButton?.addEventListener('click', () => setAuthMode('signin'));
+resetBackButton?.addEventListener('click', () => {
+    clearAuthQuery();
+    setAuthMode('signin');
+});
+
+document.querySelectorAll('.password-toggle').forEach((button) => {
+    button.addEventListener('click', () => {
+        const input = button.parentElement?.querySelector('input');
+        if (!input) return;
+        const showing = input.type === 'text';
+        input.type = showing ? 'password' : 'text';
+        button.textContent = showing ? 'Show' : 'Hide';
+        button.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+        button.setAttribute('aria-pressed', String(!showing));
+    });
+});
 
 signInForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -159,16 +248,16 @@ signInForm?.addEventListener('submit', async (event) => {
     submit.disabled = true;
     setAuthMessage('Signing in…');
     try {
-        await authRequest('/sign-in/email', {
+        const signInResult = await authRequest('/sign-in/email', {
             method: 'POST',
             body: JSON.stringify({
-                email: values.email,
+                email: normalizedEmail(values.email),
                 password: values.password,
                 rememberMe: values.rememberMe === 'on',
             }),
         });
-        const session = await authRequest('/get-session', { method: 'GET', headers: {} });
-        if (!(await enterAuthenticatedApp(session))) throw new Error('Session was not created.');
+        const session = signInResult?.user ? signInResult : await authRequest('/get-session', { method: 'GET' });
+        if (!(await enterAuthenticatedApp(session))) throw new Error('Session was not created. Please try again.');
         setAuthMessage('');
     } catch (error) {
         setAuthMessage(error.message || 'Unable to sign in.', false);
@@ -181,29 +270,104 @@ signUpForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     const submit = signUpForm.querySelector('button[type="submit"]');
     const values = Object.fromEntries(new FormData(signUpForm).entries());
+
+    if (values.password !== values.confirmPassword) {
+        setAuthMessage('The two passwords do not match.', false);
+        signUpForm.elements.confirmPassword.focus();
+        return;
+    }
+
     submit.disabled = true;
     setAuthMessage('Creating your account…');
     try {
-        await authRequest('/sign-up/email', {
+        const signUpResult = await authRequest('/sign-up/email', {
             method: 'POST',
             body: JSON.stringify({
-                name: values.name,
-                email: values.email,
+                name: String(values.name || '').trim(),
+                email: normalizedEmail(values.email),
                 password: values.password,
                 callbackURL: window.location.origin,
             }),
         });
-        sessionStorage.setItem('pendingOrganizationName', values.organizationName);
-        const session = await authRequest('/get-session', { method: 'GET', headers: {} });
-        if (!(await enterAuthenticatedApp(session, values.organizationName))) {
-            setAuthMode('signin');
-            setAuthMessage('Account created. Verify your email if requested, then sign in.');
-            return;
+
+        sessionStorage.setItem('pendingOrganizationName', String(values.organizationName || '').trim());
+
+        try {
+            const session = signUpResult?.user
+                ? signUpResult
+                : await authRequest('/get-session', { method: 'GET' });
+            if (await enterAuthenticatedApp(session, values.organizationName)) {
+                sessionStorage.removeItem('pendingOrganizationName');
+                setAuthMessage('');
+                return;
+            }
+        } catch {
+            // Some projects require email verification before a session exists.
         }
-        sessionStorage.removeItem('pendingOrganizationName');
-        setAuthMessage('');
+
+        setAuthMode('signin');
+        if (signInForm?.elements?.email) signInForm.elements.email.value = normalizedEmail(values.email);
+        setAuthMessage('Account created. Check your email if verification is required, then sign in.');
     } catch (error) {
         setAuthMessage(error.message || 'Unable to create account.', false);
+    } finally {
+        submit.disabled = false;
+    }
+});
+
+recoveryForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const submit = recoveryForm.querySelector('button[type="submit"]');
+    const values = Object.fromEntries(new FormData(recoveryForm).entries());
+    submit.disabled = true;
+    setAuthMessage('Sending reset link…');
+    try {
+        await authRequest('/request-password-reset', {
+            method: 'POST',
+            body: JSON.stringify({
+                email: normalizedEmail(values.email),
+                redirectTo: `${window.location.origin}/`,
+            }),
+        });
+        setAuthMessage('If that email is registered, a password-reset link has been sent.');
+    } catch (error) {
+        setAuthMessage(error.message || 'Unable to send the reset link.', false);
+    } finally {
+        submit.disabled = false;
+    }
+});
+
+resetPasswordForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const submit = resetPasswordForm.querySelector('button[type="submit"]');
+    const values = Object.fromEntries(new FormData(resetPasswordForm).entries());
+
+    if (!passwordResetToken) {
+        setAuthMessage('This password-reset link is missing its security token. Request a new link.', false);
+        return;
+    }
+    if (values.password !== values.confirmPassword) {
+        setAuthMessage('The two passwords do not match.', false);
+        resetPasswordForm.elements.confirmPassword.focus();
+        return;
+    }
+
+    submit.disabled = true;
+    setAuthMessage('Updating password…');
+    try {
+        await authRequest('/reset-password', {
+            method: 'POST',
+            body: JSON.stringify({
+                newPassword: values.password,
+                token: passwordResetToken,
+            }),
+        });
+        resetPasswordForm.reset();
+        clearAuthQuery();
+        setAuthMode('signin');
+        setAuthMessage('Password updated. You can sign in now.');
+    } catch (error) {
+        setAuthMessage(error.message || 'Unable to reset the password.', false);
     } finally {
         submit.disabled = false;
     }
@@ -224,7 +388,6 @@ signOutButton?.addEventListener('click', async () => {
         setAuthMessage('You have signed out.');
     }
 });
-
 
 const state = {
     clients: [],
@@ -1180,3 +1343,4 @@ decorateRefreshButtons();
 showMainMenu();
 startMoneyRain();
 checkApi();
+checkAuthSession();

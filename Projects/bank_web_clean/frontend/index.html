@@ -29,7 +29,7 @@
             </div>
 
             <div class="auth-card">
-                <div class="auth-tabs" role="tablist" aria-label="Authentication options">
+                <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Authentication options">
                     <button class="auth-tab active" id="signInTab" type="button">Sign In</button>
                     <button class="auth-tab" id="signUpTab" type="button">Create Account</button>
                 </div>
@@ -41,23 +41,29 @@
                     </label>
                     <label>
                         <span>Password</span>
-                        <input name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters" />
+                        <span class="password-field">
+                            <input name="password" type="password" autocomplete="current-password" minlength="8" maxlength="128" required placeholder="Your password" />
+                            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">Show</button>
+                        </span>
                     </label>
-                    <label class="auth-check">
-                        <input name="rememberMe" type="checkbox" checked />
-                        <span>Keep me signed in</span>
-                    </label>
+                    <div class="auth-form-row">
+                        <label class="auth-check">
+                            <input name="rememberMe" type="checkbox" checked />
+                            <span>Keep me signed in</span>
+                        </label>
+                        <button class="auth-text-button" id="forgotPasswordButton" type="button">Forgot password?</button>
+                    </div>
                     <button class="auth-submit" type="submit">Sign In</button>
                 </form>
 
                 <form id="signUpForm" class="auth-form hidden" autocomplete="on">
                     <label>
                         <span>Full Name</span>
-                        <input name="name" autocomplete="name" required placeholder="Your full name" />
+                        <input name="name" autocomplete="name" required maxlength="120" placeholder="Your full name" />
                     </label>
                     <label>
                         <span>Organization Name</span>
-                        <input name="organizationName" autocomplete="organization" required placeholder="Your company or workspace" />
+                        <input name="organizationName" autocomplete="organization" required maxlength="120" placeholder="Your company or workspace" />
                     </label>
                     <label>
                         <span>Email</span>
@@ -65,9 +71,56 @@
                     </label>
                     <label>
                         <span>Password</span>
-                        <input name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters" />
+                        <span class="password-field">
+                            <input name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required placeholder="At least 8 characters" />
+                            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">Show</button>
+                        </span>
                     </label>
+                    <label>
+                        <span>Repeat Password</span>
+                        <span class="password-field">
+                            <input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required placeholder="Type the password again" />
+                            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">Show</button>
+                        </span>
+                    </label>
+                    <small class="password-help">Use 8–128 characters. A longer unique password is safer.</small>
                     <button class="auth-submit" type="submit">Create Account</button>
+                </form>
+
+                <form id="recoveryForm" class="auth-form hidden" autocomplete="on">
+                    <div class="auth-form-heading">
+                        <h2>Reset your password</h2>
+                        <p>Enter your account email and we will send a secure reset link.</p>
+                    </div>
+                    <label>
+                        <span>Email</span>
+                        <input name="email" type="email" autocomplete="email" required placeholder="name@company.com" />
+                    </label>
+                    <button class="auth-submit" type="submit">Send Reset Link</button>
+                    <button class="auth-secondary" id="recoveryBackButton" type="button">Back to Sign In</button>
+                </form>
+
+                <form id="resetPasswordForm" class="auth-form hidden" autocomplete="on">
+                    <div class="auth-form-heading">
+                        <h2>Choose a new password</h2>
+                        <p>Enter the new password twice to confirm it.</p>
+                    </div>
+                    <label>
+                        <span>New Password</span>
+                        <span class="password-field">
+                            <input name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required placeholder="At least 8 characters" />
+                            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">Show</button>
+                        </span>
+                    </label>
+                    <label>
+                        <span>Repeat New Password</span>
+                        <span class="password-field">
+                            <input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required placeholder="Type the password again" />
+                            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">Show</button>
+                        </span>
+                    </label>
+                    <button class="auth-submit" type="submit">Update Password</button>
+                    <button class="auth-secondary" id="resetBackButton" type="button">Back to Sign In</button>
                 </form>
 
                 <p class="auth-message" id="authMessage" aria-live="polite"></p>
