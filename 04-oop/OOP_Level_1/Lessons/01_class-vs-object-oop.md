@@ -96,10 +96,10 @@ Person1.FirstName = "Mohammed"; // ✅ Works now
 
 ## ⚖️ Important Difference Between a Class and a Struct
 
-| | Default Access |
-|---|---|
-| `class` | 🔒 **private** |
-| `struct` | 🔓 **public** |
+| Keyword  | Default Access |
+|----------|----------------|
+| `class`  | 🔒 **private** |
+| `struct` | 🔓 **public**  |
 
 In a `class`, members are **private by default**.
 
