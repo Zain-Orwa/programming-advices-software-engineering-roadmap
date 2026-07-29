@@ -10,7 +10,13 @@ private:
    int      _ID = 10;
    
 public:
+
     // Set first name //
+    int GetID() // we have only get function (_ID) there is no set function and this read-only id//
+    {
+        return (_ID);
+    } 
+    
     void    SetFirstName(string FirstName)
     {
         _FirstName = FirstName;
@@ -37,10 +43,6 @@ public:
         return (_FirstName + " " + _LastName);
     }
 
-    int GetID() // we have only get function (_ID) there is no set function and this read-only id//
-    {
-        return (_ID);
-    }
 };
 
 
@@ -51,10 +53,10 @@ int main(void)
     Person1.SetFirstName("John");
     Person1.SetLastName("Deo");
 
+    cout << "ID        : " << Person1.GetID() << endl;
     cout << "First Name: " << Person1.GetFirstName() << endl;
     cout << "Last Name : " << Person1.GetLastName() << endl;
     cout << "Full Name : " << Person1.FullName() << endl;
-    cout << "ID        : " << Person1.GetID() << endl;
 
     return (0);
 }
