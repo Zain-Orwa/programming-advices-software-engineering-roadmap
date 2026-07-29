@@ -7,6 +7,7 @@ class clsPerson
 private:
    string   _FirstName;
    string   _LastName;
+   const string id = "A150";
    
 public:
     // Set first name //
@@ -35,6 +36,11 @@ public:
     {
         return (_FirstName + " " + _LastName);
     }
+
+    const string GetID()
+    {
+        return (id);
+    }
 };
 
 
@@ -45,7 +51,10 @@ int main(void)
     Person1.SetFirstName("John");
     Person1.SetLastName("Deo");
 
-    cout << Person1.FullName() << endl;
+    cout << "First Name: " << Person1.GetFirstName() << endl;
+    cout << "Last Name : " << Person1.GetLastName() << endl;
+    cout << "Full Name : " << Person1.FullName() << endl;
+    cout << "ID        : " << Person1.GetID() << endl;
 
     return (0);
 }
