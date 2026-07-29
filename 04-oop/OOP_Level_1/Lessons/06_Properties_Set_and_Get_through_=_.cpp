@@ -41,6 +41,7 @@ int main(void)
     Person1.SetFirstName("Alex");
     cout << Person1.GetFirstName() << endl;
 
+    /* to get this part working compile: clang++ -fdeclspec 06_Properties_Set_and_Get_through_=_.cpp */
     cout << "\n2. Using __declspec: ";
     Person1.FirstName = "Alex";
     cout << Person1.FirstName << endl;
