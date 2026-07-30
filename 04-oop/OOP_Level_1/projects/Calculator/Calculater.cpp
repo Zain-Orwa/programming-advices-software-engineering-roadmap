@@ -50,6 +50,7 @@ public:
         _LastOperation = "Multiply";
         _Result *= Number;   
     }
+
     void    PrintResult()
     {
         if (_LastOperation == "Clear")
@@ -65,11 +66,11 @@ public:
 
     void    Clear()
     {
-        #ifdef  _WIN32
-            system("clear");
+        #ifdef _WIN32
+            system("pause>nul");
         #else
-            system("");
-        #endif
+            system("clear");   // -s: silent, -n1: one key, no Enter
+        #endif 
     }
 
 };
@@ -79,6 +80,7 @@ int main(void)
 {
     clsCalculator Calculator1;
     
+    Calculator1.Clear();
     Calculator1.PrintResult();
     Calculator1.Add(110);
     Calculator1.PrintResult();
