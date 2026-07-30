@@ -1,10 +1,12 @@
 /* 
-    Best practice:
-
+    Best practice[1]:
     Member functions can be used with both structs and classes.
-
     However, structs should avoid defining constructor member functions, 
     as doing so makes them a non-aggregate. 
+
+
+    Best practice[2]:
+    If your class type has no data members, prefer using a namespace.
 */
 
 #include <iostream>
