@@ -1016,5 +1016,6 @@ Address2._ZipCode = Address1._ZipCode;
 
 ```
 12. When might a class need custom deep-copy behavior?
->> 
-
+>> A class needs custom deep-copy behavior when it owns resources such as dynamically 
+>> allocated memory and each copied object must receive its own independent 
+>> copy of that resource.
