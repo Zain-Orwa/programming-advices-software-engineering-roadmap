@@ -968,14 +968,53 @@ clsAddress(const clsAddress&) = default;
 ## 21. Practice Questions
 
 1. What is the purpose of a copy constructor?
+>> is to create a new object using the value of the existing object.
 2. Why does the copy constructor receive an object of the same class?
+>> a copy constructor receives an object of the same class because it needs an existing object
+>> as a source for initializing the new object.
 3. Why is the parameter passed using `&`?
+>> The copy-constructor parameter uses & to refer to the original object without copying
+>> it which also prevents endless recursive copy-constructor calls.
 4. Why should the reference normally be `const`?
+>> The reference is normally const so the copy constructor can read the source 
+>> object but cannot modify it.
 5. Which constructor runs in `clsAddress Address2 = Address1;`?
+>> The copy constructor of clsAddress runs. because Address1 is the source object,
+>> not the constructor.
 6. Does the `=` symbol in that statement mean copy assignment?
+>> Address2 is being created and initialized from Address1, so this uses the copy constructor.
+>> The = here does not mean copy assignment.
 7. What is the difference between copy construction and copy assignment?
+>> Copy construction creates a new object from an existing object. Copy assignment copies
+>> values into an object that has already been created.
 8. Can a copy constructor access private members of another object of the same class?
+>> A member function of a class, including its copy constructor, can access private members
+>> of any object of the same class.
 9. Does `clsAddress` require a manual copy constructor?
+>> A manual copy constructor is mainly needed when the class manages special resources, 
+>> such as dynamically allocated memory.
 10. What would happen if `Address2` were changed after being copied from `Address1`?
+>> Changing Address2 does not normally affect Address1, because they are two separate
+>> objects with their own copied data.
 11. What does a compiler-generated copy constructor normally copy?
+>> A compiler-generated copy constructor normally copies each data member from the source
+>> object into the new object.Example:
+```cpp
+class clsAddress
+{
+private:
+    string _City;
+    int _ZipCode;
+};
+
+//When this happens:
+clsAddress Address2 = Address1;
+
+// C++ approximately does:
+Address2._City = Address1._City;
+Address2._ZipCode = Address1._ZipCode;
+
+```
 12. When might a class need custom deep-copy behavior?
+>> 
+
