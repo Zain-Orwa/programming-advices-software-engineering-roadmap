@@ -33,13 +33,22 @@ int main(void)
     A3.Var = 30;
     A4.Var = 40;
 
+    std::cout << "\nBefore changing the static member variable:\n";
     A1.Print();
+    A2.Print();
+    A3.Print();
+    A4.Print();
+    
 
 
     // Changing the static variable with change all the value of the static in all the class:
     // also we can call change the static variable from the class itself or the object
-    clsA::counter = 1000;
+    A1.counter = 1000;
+    std::cout << "\nAfter changing the static member counter in one object:\n";
     A1.Print();
+    A2.Print();
+    A3.Print();
+    A4.Print();
     
     
     return (0);
