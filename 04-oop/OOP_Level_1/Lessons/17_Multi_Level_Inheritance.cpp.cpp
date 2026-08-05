@@ -169,7 +169,6 @@ public:
     }
 };
 
-
 class clsProgrammer : public clsEmployee
 {
 private:
@@ -206,12 +205,15 @@ public:
         cout << "\nTitle                : " << GetTitle();
         cout << "\nDepartment           : " << GetDepartment();
         cout << "\nSalary               : " << GetSalary();
-        cout << "\nProgramming Language : " << _MainProgrammingLanguage;
+        cout << "\nProgramming Language : " << GetMainProgrammingLanguage();
         cout << "\n______________________________________\n";
      
     }
 
 };
+
+
+
 
 int main(void)
 {
@@ -220,6 +222,7 @@ int main(void)
 
     Programmer1.Print();
     
+    Programmer1.SendMessage("Hi! Mr.Developer :-)");
 
     return (0);
 }
