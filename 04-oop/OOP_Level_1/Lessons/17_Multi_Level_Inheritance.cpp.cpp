@@ -1,27 +1,3 @@
-/*
-    Use here the Print() function to show how function-override happened:
-    Point_1: funtion override is different from the function-overwrite, function override is to cancel the old
-    function with a new function that has the same name and same signature and that is complently different
-    from the function overwrite that is going to have the same name but different signature.
-
-    Point_2: Function override is occurs in a base clase and sub-class, the sub-calss has the new function
-    and the base class has the old function and after we calling the sub-class is going to geve us what in
-    the previous function with and more data from the new function as we can in the example in the print
-    function here. in the case of we have a sub-class and we didn't define any new function on it and we
-    call the old function from the base class is going to call this old function with it's old data.
-
-    Point_3: how function override works? we just call the old function from the old-class inside the new
-    function in the new class. and after we continue to fill out the new data in the new function that is
-    in the sub-class. another we can just reimplement the old element of the function that in the base calss
-    into the new sub-class function and this also another we just to implement the function override.
-    But if we have to reimplement the old function we have to know that if the data member of the base class
-    are private we have to call the the data emelment though the getter function for each data memeber that
-    is the only only we can access these data members.
-
-
-
-*/
-
 #include <iostream>
 
 using namespace std;
