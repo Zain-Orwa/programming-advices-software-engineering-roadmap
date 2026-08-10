@@ -1,8 +1,9 @@
 #pragma once
 
 #include <iostream>
-using namespace std;
+#include <vector>
 
+using namespace std;
 
 class clsString
 {
@@ -58,6 +59,109 @@ public:
     {
         return (CountWords(_Value));
     }
+
+    static void PrintFirstLetterOfEachWord(const std::string& str)
+    {
+        bool isFirstLetter = true;
+
+        for (size_t i = 0; i < str.length(); i++)
+        {
+            if (str[i] != ' ' && isFirstLetter)
+                std::cout << str[i] << std::endl;
+
+            isFirstLetter = (str[i] == ' ');
+        }
+    }
+
+    void PrintFirstLetterOfEachWord(void)
+    {
+        PrintFirstLetterOfEachWord(_Value);
+    }
+   
+    static string    UpperFirstLetterOfEachWord(std::string str)
+    {
+        bool    isFirstLetter;
+
+        isFirstLetter = true;
+        for (size_t i = 0; i < str.length(); i++)
+        {
+            if (str[i] != ' ' && isFirstLetter)
+                str[i] -= 32;
+            isFirstLetter = (str[i] == ' ' ? true : false);
+        }
+        return (str);
+    }
+
+    void    UpperFirstLetterOfEachWord()
+    {
+        _Value = UpperFirstLetterOfEachWord(_Value);
+    }
+
+    static string    LowerFirstLetterOfEachWord(std::string str)
+    {
+        bool    isFirstLetter;
+
+        isFirstLetter = true;
+        for (size_t i = 0; i < str.length(); i++)
+        {
+            if (str[i] != ' ' && isFirstLetter)
+                str[i] += 32;
+            isFirstLetter = (str[i] == ' ' ? true : false);
+        }
+        return (str);
+    }
+
+    void    LowerFirstLetterOfEachWord()
+    {
+        _Value = LowerFirstLetterOfEachWord(_Value);
+    }
+
+    static string AllToUpper(std::string str)
+    {
+        for (size_t i = 0; i < str.length(); i++)
+        {
+            if (islower(str[i]))
+                str[i] -= 32;
+        }
+        return (str);
+    }
+
+    void    AllToUpper()
+    {
+        _Value = AllToUpper(_Value);
+    }
+
+    static string AllToLower(std::string str)
+    {
+        for (size_t i = 0; i < str.length(); i++)
+        {
+            if (isupper(str[i]))
+                str[i] += 32;
+        }
+        return (str);
+    }
+
+    void    AllToLower()
+    {
+        _Value = AllToLower(_Value);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 };
 
 
