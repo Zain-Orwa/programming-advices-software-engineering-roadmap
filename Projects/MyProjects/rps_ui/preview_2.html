@@ -1,0 +1,1489 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rock Paper Scissors Universe</title>
+  <style>
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@500;700;800;900&display=swap");
+
+:root {
+  --bg: #030613;
+  --panel: rgba(8, 13, 31, 0.86);
+  --panel-strong: rgba(10, 16, 40, 0.94);
+  --panel-soft: rgba(15, 23, 52, 0.72);
+  --line: rgba(101, 139, 255, 0.22);
+  --line-strong: rgba(87, 201, 255, 0.45);
+  --text: #f2f7ff;
+  --muted: #91a0c6;
+  --dim: #647099;
+  --blue: #36c8ff;
+  --blue-2: #2f7bff;
+  --purple: #9b5cff;
+  --green: #41f07d;
+  --gold: #f6b32b;
+  --red: #ff4757;
+  --radius: 22px;
+  --shadow-blue: 0 0 34px rgba(53, 200, 255, 0.18), inset 0 0 34px rgba(53, 200, 255, 0.04);
+  --shadow-purple: 0 0 34px rgba(155, 92, 255, 0.18), inset 0 0 34px rgba(155, 92, 255, 0.04);
+  --font-main: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: Orbitron, Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { min-height: 100%; background: var(--bg); }
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: var(--font-main);
+  background:
+    radial-gradient(1100px 640px at 10% -10%, rgba(47, 123, 255, 0.28), transparent 58%),
+    radial-gradient(900px 600px at 92% 6%, rgba(155, 92, 255, 0.23), transparent 56%),
+    radial-gradient(720px 520px at 48% 112%, rgba(20, 184, 166, 0.12), transparent 64%),
+    linear-gradient(180deg, #05081a, #020410 72%);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .55;
+  background-image:
+    radial-gradient(circle at 12% 24%, rgba(255,255,255,.7) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 72% 19%, rgba(255,255,255,.5) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 42% 72%, rgba(255,255,255,.45) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 92% 86%, rgba(255,255,255,.55) 0 1px, transparent 1.4px);
+  background-size: 220px 180px, 270px 240px, 310px 260px, 390px 310px;
+  animation: drift 42s linear infinite;
+}
+
+@keyframes drift {
+  from { transform: translate3d(0,0,0); }
+  to { transform: translate3d(-120px, 70px, 0); }
+}
+
+button, input { font: inherit; }
+button { color: inherit; }
+a { color: inherit; text-decoration: none; }
+svg { display: block; }
+.svg-defs { position: absolute; pointer-events: none; }
+
+.app-shell {
+  width: min(1500px, calc(100vw - 28px));
+  min-height: calc(100vh - 28px);
+  margin: 14px auto;
+  position: relative;
+  border: 1px solid rgba(53, 200, 255, .28);
+  border-radius: 34px;
+  background:
+    linear-gradient(180deg, rgba(7, 12, 30, .86), rgba(3, 8, 20, .78)),
+    radial-gradient(600px 420px at 50% 35%, rgba(53, 200, 255, .09), transparent 70%);
+  box-shadow: 0 0 0 1px rgba(53, 200, 255, .08), 0 30px 80px rgba(0,0,0,.45), 0 0 70px rgba(47,123,255,.15);
+  overflow: hidden;
+}
+
+.app-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 34px;
+  background: linear-gradient(120deg, rgba(255,255,255,.06), transparent 22%, transparent 72%, rgba(53,200,255,.05));
+  mask-image: linear-gradient(#000, transparent 88%);
+}
+
+.topbar {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 410px 1fr 330px;
+  align-items: center;
+  gap: 20px;
+  padding: 26px 30px 18px;
+}
+
+.brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.brand-orbit {
+  width: 145px; height: 90px;
+  flex: 0 0 auto;
+  display: grid; place-items: center;
+  filter: drop-shadow(0 0 18px rgba(53, 200, 255, .55));
+}
+.brand-mark { width: 145px; height: 90px; }
+.brand-copy { min-width: 0; }
+.brand-copy strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 1.6vw, 28px);
+  line-height: 1.05;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+.brand-copy span {
+  display: block;
+  font-family: var(--font-display);
+  color: transparent;
+  background: linear-gradient(90deg, var(--blue), #78e7ff 30%, var(--purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  letter-spacing: 13px;
+  font-weight: 800;
+  font-size: 19px;
+  line-height: 1.1;
+}
+.brand-copy em { display: block; color: var(--muted); font-style: normal; margin-top: 7px; }
+
+.nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.nav-button {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 18px;
+  width: 100px;
+  height: 84px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: transform .18s ease, color .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.nav-button svg { width: 27px; height: 27px; }
+.nav-button span { font-size: 13px; font-weight: 750; }
+.nav-button:hover { color: var(--text); transform: translateY(-2px); background: rgba(255,255,255,.035); }
+.nav-button.active {
+  color: white;
+  border-color: rgba(53, 200, 255, .65);
+  background: linear-gradient(180deg, rgba(47, 123, 255, .25), rgba(47, 123, 255, .05));
+  box-shadow: 0 0 28px rgba(47, 123, 255, .34), inset 0 0 18px rgba(53, 200, 255, .08);
+}
+
+.account-strip { display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
+.coin-pill, .icon-button, .profile-chip {
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.045);
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+}
+.coin-pill {
+  height: 43px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 8px 0 12px;
+  font-weight: 850;
+}
+.coin-pill svg { width: 27px; height: 27px; color: #9b6c10; }
+.coin-pill b {
+  width: 25px; height: 25px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  color: #351c00;
+  background: linear-gradient(180deg, #fff1a6, #f59e0b);
+}
+.icon-button {
+  width: 43px; height: 43px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+}
+.icon-button svg { width: 24px; height: 24px; color: var(--muted); }
+.profile-chip {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  padding: 4px 12px 4px 5px;
+  font-weight: 750;
+}
+.avatar {
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  position: relative;
+  font-weight: 950;
+  font-size: 20px;
+  box-shadow: inset 0 0 20px rgba(255,255,255,.08);
+}
+.avatar-blue { background: radial-gradient(circle at 35% 25%, #68e5ff, #3150d6 42%, #151844 78%); border: 2px solid rgba(103, 232, 249, .9); }
+.avatar-red { background: radial-gradient(circle at 35% 25%, #ff9b9b, #991b1b 44%, #13060a 78%); border: 2px solid rgba(255, 71, 87, .9); }
+.avatar small {
+  position: absolute;
+  right: -8px; bottom: -4px;
+  min-width: 25px;
+  height: 20px;
+  border-radius: 999px;
+  display: grid; place-items: center;
+  background: linear-gradient(180deg, #9b5cff, #5b21b6);
+  border: 2px solid #070c1f;
+  font-size: 10px;
+}
+
+.connection-panel {
+  position: relative;
+  z-index: 2;
+  margin: 0 30px 18px;
+  border: 1px solid rgba(246, 179, 43, .25);
+  background: linear-gradient(90deg, rgba(246, 179, 43, .08), rgba(53, 200, 255, .04));
+  border-radius: 18px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.connection-panel.is-connected {
+  border-color: rgba(65, 240, 125, .28);
+  background: linear-gradient(90deg, rgba(65, 240, 125, .08), rgba(53, 200, 255, .04));
+}
+.connection-panel strong { display: block; margin-bottom: 3px; }
+.connection-panel span { color: var(--muted); font-size: 14px; }
+.api-form { display: flex; align-items: center; gap: 10px; min-width: 410px; }
+.api-form input, .inline-form input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  background: rgba(2, 6, 23, .72);
+  color: var(--text);
+  outline: none;
+  padding: 0 14px;
+}
+.api-form input:focus, .inline-form input:focus { border-color: rgba(53, 200, 255, .6); box-shadow: 0 0 0 4px rgba(53, 200, 255, .08); }
+
+.view { position: relative; z-index: 1; padding: 0 30px 30px; }
+.card {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(15, 23, 52, .78), rgba(7, 12, 31, .86));
+  box-shadow: var(--shadow-blue);
+  overflow: hidden;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,.065), transparent 28%, transparent 72%, rgba(53,200,255,.035));
+}
+.section-heading {
+  position: relative;
+  z-index: 1;
+  color: #dbe8ff;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  font-weight: 900;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+.muted { color: var(--muted); }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 210px minmax(560px, 1fr) 295px;
+  grid-template-areas:
+    "stats arena tournament"
+    "quick tournamentCta tournament"
+    "meme meme meme";
+  gap: 16px;
+}
+.stats-panel { grid-area: stats; padding: 17px; }
+.arena-panel { grid-area: arena; min-height: 485px; padding: 22px; overflow: visible; }
+.tournament-card { grid-area: tournament; padding: 18px; }
+.quick-cta { grid-area: quick; }
+.tour-cta { grid-area: tournamentCta; }
+.memeforge { grid-area: meme; min-height: 140px; display: grid; grid-template-columns: 220px 1fr 180px; align-items: center; gap: 18px; padding: 18px; }
+
+.stat {
+  position: relative;
+  z-index: 1;
+  min-height: 77px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.11);
+  padding: 13px 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,.035);
+}
+.stat span { display: block; color: var(--muted); text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: 1px; }
+.stat strong { display: block; color: white; font-size: 27px; line-height: 1.08; font-weight: 950; }
+.stat small { color: var(--dim); font-size: 11px; }
+.stat svg { width: 32px; height: 32px; color: var(--blue); }
+.stat-blue { box-shadow: inset 0 0 24px rgba(53, 200, 255, .08); }
+.stat-green { box-shadow: inset 0 0 24px rgba(65, 240, 125, .09); }
+.stat-gold { box-shadow: inset 0 0 24px rgba(246, 179, 43, .09); }
+.stat-purple { box-shadow: inset 0 0 24px rgba(155, 92, 255, .1); }
+.target-icon, .flame-icon, .rank-gem { font-size: 30px; }
+.target-icon { color: var(--green); }
+.flame-icon { color: var(--gold); }
+.rank-gem { color: var(--purple); text-shadow: 0 0 20px rgba(155,92,255,.6); }
+.recent-results { position: relative; z-index: 1; margin-top: 20px; }
+.recent-results > span { display: block; text-transform: uppercase; color: #dbe8ff; font-size: 12px; font-weight: 950; letter-spacing: 1.4px; margin-bottom: 10px; }
+.result-dots { display: flex; gap: 7px; flex-wrap: wrap; }
+.result-dot {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-weight: 950;
+  border: 1px solid;
+}
+.result-dot.win { color: var(--green); background: rgba(65,240,125,.09); border-color: rgba(65,240,125,.55); }
+.result-dot.loss { color: var(--red); background: rgba(255,71,87,.09); border-color: rgba(255,71,87,.55); }
+.result-dot.draw { color: var(--gold); background: rgba(246,179,43,.09); border-color: rgba(246,179,43,.55); }
+
+.live-badge {
+  position: absolute;
+  left: 50%; top: -14px;
+  transform: translateX(-50%);
+  height: 30px;
+  display: inline-flex; align-items: center; gap: 9px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(5, 10, 26, .98);
+  color: #c8d4f8;
+  border-radius: 999px;
+  padding: 0 18px;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 1.4px;
+  z-index: 3;
+}
+.live-badge i { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 10px currentColor; }
+.live-badge.is-live i { background: var(--green); color: var(--green); }
+
+.match-header {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 92px minmax(220px, 1fr);
+  align-items: center;
+  gap: 14px;
+  margin: 8px 0 30px;
+}
+.fighter {
+  min-height: 112px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  background: rgba(255,255,255,.025);
+  position: relative;
+}
+.fighter-left {
+  border: 1.5px solid rgba(53, 200, 255, .72);
+  border-radius: 70px 20px 20px 70px;
+  box-shadow: 0 0 30px rgba(53, 200, 255, .18), inset 0 0 24px rgba(53, 200, 255, .06);
+  clip-path: polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%);
+}
+.fighter-right {
+  border: 1.5px solid rgba(255, 71, 87, .72);
+  border-radius: 20px 70px 70px 20px;
+  box-shadow: 0 0 30px rgba(255, 71, 87, .14), inset 0 0 24px rgba(255, 71, 87, .05);
+  text-align: right;
+  justify-content: flex-end;
+  clip-path: polygon(8% 0, 100% 0, 100% 100%, 8% 100%, 0 50%);
+}
+.fighter .avatar { flex: 0 0 auto; width: 74px; height: 74px; }
+.fighter strong { display: block; font-size: 20px; font-weight: 950; letter-spacing: -.3px; }
+.fighter small { display: block; color: var(--muted); margin: 5px 0; }
+.fighter b { color: var(--gold); }
+.versus-mark {
+  display: grid; place-items: center;
+  font-size: 46px;
+  line-height: 1;
+  font-weight: 1000;
+  font-style: italic;
+  color: transparent;
+  background: linear-gradient(180deg, #f8fdff 0%, #35c8ff 47%, #9b5cff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 18px rgba(53, 200, 255, .7));
+}
+.choice-stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 190px minmax(240px, 1fr);
+  align-items: center;
+  gap: 18px;
+}
+.choice-set { display: flex; justify-content: center; }
+.choice-card {
+  width: 92px;
+  height: 136px;
+  border: 1px solid rgba(255,255,255,.13);
+  background: linear-gradient(180deg, rgba(18, 28, 66, .78), rgba(6, 11, 28, .86));
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  color: var(--muted);
+  opacity: .68;
+  filter: saturate(.65) brightness(.78);
+  cursor: default;
+}
+.choice-card:first-child { border-radius: 18px 0 0 18px; }
+.choice-card:last-child { border-radius: 0 18px 18px 0; }
+.choice-card svg { width: 62px; height: 62px; }
+.choice-card span { font-size: 12px; font-weight: 850; }
+.choice-card.is-selected {
+  opacity: 1;
+  filter: none;
+  color: white;
+  z-index: 2;
+  border-color: rgba(53, 200, 255, .85);
+  box-shadow: 0 0 28px rgba(53, 200, 255, .44), inset 0 0 22px rgba(53, 200, 255, .08);
+}
+.is-opponent .choice-card.is-selected { border-color: rgba(65, 240, 125, .85); box-shadow: 0 0 28px rgba(65, 240, 125, .35), inset 0 0 22px rgba(65, 240, 125, .07); }
+.countdown-core { text-align: center; }
+.countdown-core span { display: block; color: #d6dffb; letter-spacing: 10px; font-weight: 950; font-size: 21px; }
+.countdown-core strong {
+  display: block;
+  margin: 2px 0 6px;
+  font-size: 52px;
+  color: transparent;
+  background: linear-gradient(180deg, #fff4c4, var(--gold), #b45309);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 24px rgba(246, 179, 43, .58));
+  line-height: 1;
+}
+.countdown-core small { color: var(--muted); font-weight: 700; }
+.result-banner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+  min-height: 98px;
+  border-radius: 20px;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(90deg, rgba(53,200,255,.08), rgba(255,255,255,.025), rgba(155,92,255,.08));
+}
+.result-banner svg { width: 44px; height: 44px; color: var(--blue); flex: 0 0 auto; }
+.result-banner strong { display: block; font-size: 24px; margin-bottom: 4px; }
+.result-banner span { color: var(--muted); }
+.result-banner.win { border-color: rgba(65,240,125,.5); background: linear-gradient(90deg, rgba(65,240,125,.14), rgba(255,255,255,.025)); }
+.result-banner.lose { border-color: rgba(255,71,87,.5); background: linear-gradient(90deg, rgba(255,71,87,.14), rgba(255,255,255,.025)); }
+.result-banner.draw { border-color: rgba(246,179,43,.5); background: linear-gradient(90deg, rgba(246,179,43,.13), rgba(255,255,255,.025)); }
+
+.tabs { position: relative; z-index: 1; display: flex; gap: 18px; border-bottom: 1px solid rgba(255,255,255,.1); margin: 18px 0; }
+.tabs button { background: none; border: none; color: var(--muted); padding: 0 0 10px; cursor: pointer; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; }
+.tabs .active { color: var(--blue); border-bottom: 2px solid var(--blue); }
+.mini-bracket { position: relative; z-index: 1; min-height: 290px; }
+.bracket-list { display: grid; gap: 12px; }
+.bracket-match { border: 1px solid rgba(255,255,255,.11); border-left: 3px solid var(--blue); border-radius: 14px; padding: 10px; background: rgba(255,255,255,.035); }
+.bracket-player { display: flex; align-items: center; gap: 9px; padding: 6px; color: #d6dffb; font-weight: 760; }
+.bracket-player small { color: var(--dim); min-width: 18px; }
+.bracket-player.is-winner { color: white; background: rgba(53,200,255,.07); border-radius: 10px; }
+
+.action-card { position: relative; min-height: 122px; padding: 19px; display: grid; grid-template-columns: 54px 1fr auto; align-items: center; gap: 16px; }
+.action-card > svg { position: relative; z-index: 1; width: 52px; height: 52px; }
+.action-card strong { position: relative; z-index: 1; display: block; font-size: 18px; text-transform: uppercase; font-weight: 950; }
+.action-card span { position: relative; z-index: 1; display: block; color: var(--muted); margin-top: 4px; }
+.action-blue { border-color: rgba(53,200,255,.28); }
+.action-purple { border-color: rgba(155,92,255,.28); box-shadow: var(--shadow-purple); }
+
+.memeforge > * { position: relative; z-index: 1; }
+.meme-intro strong { display: block; font-size: 24px; font-weight: 1000; letter-spacing: -.5px; }
+.meme-intro span { display: block; color: var(--muted); margin: 4px 0 14px; }
+.meme-strip { min-height: 104px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.meme-card {
+  min-height: 104px;
+  border-radius: 16px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: radial-gradient(circle at 70% 30%, rgba(246,179,43,.18), transparent 45%), linear-gradient(135deg, rgba(155,92,255,.18), rgba(53,200,255,.06));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.meme-card strong { font-size: 14px; line-height: 1.25; }
+.meme-card small { color: var(--muted); }
+.share-box { justify-self: end; display: grid; gap: 12px; }
+.share-box span { color: var(--muted); text-transform: uppercase; font-size: 12px; font-weight: 950; letter-spacing: 1.4px; }
+
+.btn {
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 13px;
+  min-height: 42px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 0 17px;
+  font-weight: 950;
+  cursor: pointer;
+  transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+.btn svg { width: 20px; height: 20px; }
+.btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.btn-blue { background: linear-gradient(90deg, #1e63f0, #35a8ff); box-shadow: 0 10px 24px rgba(53, 168, 255, .22); }
+.btn-purple { background: linear-gradient(90deg, #6d2df0, #9a54ff); box-shadow: 0 10px 24px rgba(155, 92, 255, .24); }
+.btn-ghost { background: rgba(255,255,255,.045); color: #ccd8f8; }
+.btn.full { width: 100%; margin-top: 14px; }
+
+.route-page { display: grid; gap: 16px; }
+.two-column { grid-template-columns: minmax(0, 1fr) minmax(360px, .75fr); align-items: start; }
+.page-hero { padding: 26px; display: flex; align-items: center; gap: 20px; }
+.page-hero.wide { display: grid; grid-template-columns: 78px 1fr auto; }
+.hero-icon { position: relative; z-index: 1; width: 78px; height: 78px; color: var(--blue); filter: drop-shadow(0 0 22px rgba(53,200,255,.42)); }
+.eyebrow { position: relative; z-index: 1; color: var(--blue); text-transform: uppercase; font-size: 12px; letter-spacing: 2px; font-weight: 1000; margin: 0 0 7px; }
+h1 { position: relative; z-index: 1; margin: 0; font-size: clamp(30px, 4vw, 58px); line-height: 1; letter-spacing: -2px; }
+.page-hero p:not(.eyebrow) { position: relative; z-index: 1; color: var(--muted); max-width: 720px; line-height: 1.6; margin: 12px 0 0; }
+.control-card, .battle-control, .profile-card { padding: 22px; }
+.button-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.inline-form { display: flex; gap: 10px; flex: 1; min-width: 300px; }
+.info-box, .empty-state, .table-state {
+  position: relative;
+  z-index: 1;
+  border: 1px dashed rgba(255,255,255,.18);
+  background: rgba(2, 6, 23, .42);
+  color: var(--muted);
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 16px;
+  line-height: 1.5;
+}
+.real-choice-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.real-choice {
+  min-height: 175px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(180deg, rgba(18, 28, 66, .78), rgba(6, 11, 28, .86));
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.real-choice svg { width: 86px; height: 86px; }
+.real-choice span { font-weight: 1000; }
+.real-choice:hover { transform: translateY(-5px); border-color: rgba(53,200,255,.65); box-shadow: 0 14px 32px rgba(53,200,255,.18); }
+.bracket-board { min-height: 500px; padding: 22px; }
+.full-bracket-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.leaderboard-table { width: 100%; border-collapse: collapse; position: relative; z-index: 1; }
+.leaderboard-table th, .leaderboard-table td { padding: 14px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; }
+.leaderboard-table th { color: var(--muted); text-transform: uppercase; font-size: 12px; letter-spacing: 1.2px; }
+.profile-grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 12px; }
+.profile-field { border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 14px; background: rgba(255,255,255,.035); }
+.profile-field span { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+.profile-field strong { font-size: 20px; }
+
+.toast {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 99;
+  max-width: 430px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 16px;
+  padding: 13px 15px;
+  background: rgba(3, 8, 20, .92);
+  box-shadow: 0 18px 42px rgba(0,0,0,.35);
+  color: #e6eeff;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+code { color: #93e9ff; background: rgba(53,200,255,.07); border: 1px solid rgba(53,200,255,.12); padding: 2px 6px; border-radius: 8px; }
+
+@media (max-width: 1280px) {
+  .topbar { grid-template-columns: 1fr; justify-items: center; }
+  .account-strip { justify-content: center; }
+  .dashboard-grid { grid-template-columns: 220px 1fr; grid-template-areas: "stats arena" "tournament arena" "quick tournamentCta" "meme meme"; }
+  .memeforge { grid-template-columns: 1fr; }
+  .meme-strip { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 900px) {
+  .app-shell { width: calc(100vw - 16px); margin: 8px; border-radius: 24px; }
+  .topbar { padding: 18px; }
+  .brand { flex-direction: column; text-align: center; }
+  .nav { flex-wrap: wrap; }
+  .connection-panel { flex-direction: column; align-items: stretch; margin: 0 18px 18px; }
+  .api-form { min-width: 0; flex-direction: column; }
+  .view { padding: 0 18px 18px; }
+  .dashboard-grid, .two-column { grid-template-columns: 1fr; grid-template-areas: none; }
+  .dashboard-grid > * { grid-area: auto; }
+  .match-header, .choice-stage { grid-template-columns: 1fr; }
+  .fighter-right { text-align: left; justify-content: flex-start; flex-direction: row-reverse; }
+  .choice-set { justify-content: stretch; }
+  .choice-card { width: 100%; }
+  .real-choice-row { grid-template-columns: 1fr; }
+}
+
+</style>
+</head>
+<body>
+  <svg aria-hidden="true" class="svg-defs" width="0" height="0">
+    <defs>
+      <linearGradient id="grad-blue" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#67e8f9" />
+        <stop offset=".45" stop-color="#3b82f6" />
+        <stop offset="1" stop-color="#7c3aed" />
+      </linearGradient>
+      <linearGradient id="grad-green" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#a7f3d0" />
+        <stop offset=".45" stop-color="#22c55e" />
+        <stop offset="1" stop-color="#14b8a6" />
+      </linearGradient>
+      <linearGradient id="grad-gold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fff7ad" />
+        <stop offset=".5" stop-color="#f59e0b" />
+        <stop offset="1" stop-color="#b45309" />
+      </linearGradient>
+      <linearGradient id="grad-red" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fecaca" />
+        <stop offset=".45" stop-color="#ef4444" />
+        <stop offset="1" stop-color="#7f1d1d" />
+      </linearGradient>
+      <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="3" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+
+    <symbol id="icon-home" viewBox="0 0 64 64">
+      <path d="M9 31 32 12l23 19" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16 29v24h12V39h8v14h12V29" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="icon-lightning" viewBox="0 0 64 64">
+      <path d="M37 4 12 36h17l-4 24 27-35H34z" fill="url(#grad-blue)" stroke="currentColor" stroke-width="2" stroke-linejoin="round" filter="url(#soft-glow)"/>
+      <path d="M35 8 18 32h17l-3 16 14-19H31z" fill="rgba(255,255,255,.22)"/>
+    </symbol>
+
+    <symbol id="icon-cup" viewBox="0 0 64 64">
+      <path d="M21 12h22v12c0 9-5 17-11 17S21 33 21 24z" fill="url(#grad-gold)" stroke="currentColor" stroke-width="2"/>
+      <path d="M21 18h-8c0 9 4 16 12 18M43 18h8c0 9-4 16-12 18" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+      <path d="M32 41v9M22 56h20M26 50h12" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="icon-chart" viewBox="0 0 64 64">
+      <rect x="12" y="34" width="8" height="18" rx="3" fill="currentColor" opacity=".55"/>
+      <rect x="28" y="22" width="8" height="30" rx="3" fill="currentColor" opacity=".75"/>
+      <rect x="44" y="12" width="8" height="40" rx="3" fill="currentColor"/>
+      <path d="M9 54h47" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity=".6"/>
+    </symbol>
+
+    <symbol id="icon-user" viewBox="0 0 64 64">
+      <circle cx="32" cy="23" r="12" fill="none" stroke="currentColor" stroke-width="5"/>
+      <path d="M13 54c3-11 11-17 19-17s16 6 19 17" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="icon-bell" viewBox="0 0 64 64">
+      <path d="M18 46h28l-4-7V26c0-7-4-13-10-13s-10 6-10 13v13z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M27 52c2 4 8 4 10 0" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="48" cy="14" r="5" fill="#ff4757"/>
+    </symbol>
+
+    <symbol id="icon-coin" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="23" fill="url(#grad-gold)" stroke="currentColor" stroke-width="2"/>
+      <circle cx="32" cy="32" r="15" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="3"/>
+      <path d="M31 20v24M24 26c2-4 13-5 16 0 3 6-12 6-15 11-2 5 12 7 17 1" fill="none" stroke="#4a2a00" stroke-width="4" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="icon-rock" viewBox="0 0 96 96">
+      <path d="M19 60 26 32 48 18 72 25 85 52 70 78 37 82z" fill="url(#grad-blue)" stroke="#9be8ff" stroke-width="2.2" filter="url(#soft-glow)"/>
+      <path d="M26 32 47 39 48 18M47 39 70 78M47 39 85 52M26 32 37 82" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="2"/>
+      <path d="M35 31 49 23 66 28 47 39z" fill="rgba(255,255,255,.20)"/>
+    </symbol>
+
+    <symbol id="icon-paper" viewBox="0 0 96 96">
+      <path d="M28 12h27l16 17v55H28z" fill="#cfd8e8" stroke="#f8fbff" stroke-width="2.2"/>
+      <path d="M55 12v18h16" fill="#e9eff8" stroke="#f8fbff" stroke-width="2.2"/>
+      <path d="M38 43h22M38 55h22M38 67h15" stroke="#64748b" stroke-width="4" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="icon-scissors" viewBox="0 0 96 96">
+      <circle cx="30" cy="66" r="10" fill="none" stroke="url(#grad-green)" stroke-width="7" filter="url(#soft-glow)"/>
+      <circle cx="30" cy="30" r="10" fill="none" stroke="url(#grad-green)" stroke-width="7" filter="url(#soft-glow)"/>
+      <path d="M38 37 77 18M38 59 77 78" stroke="url(#grad-green)" stroke-width="8" stroke-linecap="round" filter="url(#soft-glow)"/>
+      <path d="M38 48h16" stroke="#bbf7d0" stroke-width="5" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="icon-crown" viewBox="0 0 64 64">
+      <path d="M10 23l13 10 9-18 9 18 13-10-5 25H15z" fill="url(#grad-gold)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M16 52h32" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="icon-link" viewBox="0 0 64 64">
+      <path d="M25 36c5 5 12 5 17 0l7-7c5-5 5-12 0-17s-12-5-17 0l-4 4" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+      <path d="M39 28c-5-5-12-5-17 0l-7 7c-5 5-5 12 0 17s12 5 17 0l4-4" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+    </symbol>
+  </svg>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#/home" aria-label="Rock Paper Scissors Universe home">
+        <span class="brand-orbit">
+          <svg class="brand-mark" viewBox="0 0 120 90" aria-hidden="true">
+            <ellipse cx="60" cy="45" rx="52" ry="22" transform="rotate(-18 60 45)" fill="none" stroke="#35c8ff" stroke-width="2" opacity=".9" />
+            <ellipse cx="60" cy="45" rx="44" ry="17" transform="rotate(18 60 45)" fill="none" stroke="#8b5cf6" stroke-width="2" opacity=".75" />
+            <use href="#icon-rock" x="16" y="30" width="34" height="34" />
+            <use href="#icon-paper" x="44" y="18" width="36" height="36" />
+            <use href="#icon-scissors" x="70" y="32" width="36" height="36" />
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <strong>ROCK PAPER SCISSORS</strong>
+          <span>UNIVERSE</span>
+          <em>Tiny decisions. Legendary battles.</em>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <button class="nav-button" data-route="home" type="button"><svg><use href="#icon-home" /></svg><span>Home</span></button>
+        <button class="nav-button" data-route="quick" type="button"><svg><use href="#icon-lightning" /></svg><span>Quick Match</span></button>
+        <button class="nav-button" data-route="tournament" type="button"><svg><use href="#icon-cup" /></svg><span>Tournament</span></button>
+        <button class="nav-button" data-route="leaderboard" type="button"><svg><use href="#icon-chart" /></svg><span>Leaderboard</span></button>
+        <button class="nav-button" data-route="profile" type="button"><svg><use href="#icon-user" /></svg><span>Profile</span></button>
+      </nav>
+
+      <div class="account-strip">
+        <button class="coin-pill" type="button" aria-label="Coins"><svg><use href="#icon-coin" /></svg><span data-bind="coins">—</span><b>+</b></button>
+        <button class="icon-button" type="button" aria-label="Notifications"><svg><use href="#icon-bell" /></svg></button>
+        <button class="profile-chip" data-route="profile" type="button" aria-label="Profile">
+          <span class="avatar avatar-blue"><span data-bind="profileInitial">?</span><small data-bind="level">—</small></span>
+          <span data-bind="playerName">Not connected</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="connection-panel" id="connectionPanel">
+      <div>
+        <strong id="apiStatusTitle">Backend not connected</strong>
+        <span id="apiStatusText">Set your API base URL, then this UI will load real sessions, tournaments, leaderboard, and profile data.</span>
+      </div>
+      <form id="apiConfigForm" class="api-form">
+        <input id="apiBaseUrl" type="url" placeholder="http://localhost:8080" autocomplete="url" />
+        <button class="btn btn-blue" type="submit">Connect API</button>
+      </form>
+    </section>
+
+    <main class="view" id="view" tabindex="-1"></main>
+  </div>
+
+  <template id="homeTemplate">
+    <section class="dashboard-grid">
+      <aside class="stats-panel card">
+        <div class="section-heading">Stats</div>
+        <div class="stat stat-blue"><div><span>Wins</span><strong data-bind="wins">—</strong></div><svg><use href="#icon-cup" /></svg></div>
+        <div class="stat stat-green"><div><span>Win rate</span><strong data-bind="winRate">—</strong></div><span class="target-icon">◎</span></div>
+        <div class="stat stat-gold"><div><span>Current streak</span><strong data-bind="streak">—</strong><small>Best: <b data-bind="bestStreak">—</b></small></div><span class="flame-icon">🔥</span></div>
+        <div class="stat stat-purple"><div><span>Rank</span><strong data-bind="rank">—</strong><small data-bind="rankText">Waiting for backend</small></div><span class="rank-gem">◆</span></div>
+        <div class="recent-results"><span>Recent results</span><div id="recentResults" class="result-dots"></div></div>
+      </aside>
+
+      <section class="arena-panel card">
+        <div class="live-badge"><i></i><span id="liveState">Awaiting session</span></div>
+        <div class="match-header">
+          <article class="fighter fighter-left">
+            <span class="avatar avatar-blue"><span data-bind="profileInitial">?</span><small data-bind="level">—</small></span>
+            <div><strong data-bind="playerName">Player</strong><small data-bind="playerTitle">—</small><b>🏆 <span data-bind="trophies">—</span></b></div>
+          </article>
+          <div class="versus-mark">VS</div>
+          <article class="fighter fighter-right">
+            <div><strong id="opponentName">Waiting</strong><small id="opponentTitle">No opponent yet</small><b>🏆 <span id="opponentTrophies">—</span></b></div>
+            <span class="avatar avatar-red"><span id="opponentInitial">?</span><small id="opponentLevel">—</small></span>
+          </article>
+        </div>
+
+        <div class="choice-stage">
+          <div class="choice-set" id="playerChoicesPreview">
+            <button class="choice-card" type="button" data-choice-preview="rock" disabled><svg><use href="#icon-rock" /></svg><span>Rock</span></button>
+            <button class="choice-card" type="button" data-choice-preview="paper" disabled><svg><use href="#icon-paper" /></svg><span>Paper</span></button>
+            <button class="choice-card" type="button" data-choice-preview="scissors" disabled><svg><use href="#icon-scissors" /></svg><span>Scissors</span></button>
+          </div>
+          <div class="countdown-core"><span id="countdownText">LOCK</span><strong id="centerStatus">READY</strong><small id="centerHint">Create or join a match in Quick Match.</small></div>
+          <div class="choice-set is-opponent" id="opponentChoicesPreview">
+            <button class="choice-card" type="button" disabled><svg><use href="#icon-rock" /></svg><span>Rock</span></button>
+            <button class="choice-card" type="button" disabled><svg><use href="#icon-paper" /></svg><span>Paper</span></button>
+            <button class="choice-card" type="button" disabled><svg><use href="#icon-scissors" /></svg><span>Scissors</span></button>
+          </div>
+        </div>
+
+        <div class="result-banner" id="resultBanner">
+          <svg><use href="#icon-lightning" /></svg>
+          <div><strong>No active match</strong><span>Backend result will appear here after both players lock choices.</span></div>
+        </div>
+      </section>
+
+      <aside class="tournament-card card">
+        <div class="section-heading">Universe Tournament</div>
+        <p class="muted" id="tournamentEnds">Load tournament data from backend.</p>
+        <div class="tabs"><button class="active" type="button">Bracket</button><button type="button">Live Players</button></div>
+        <div id="miniBracket" class="mini-bracket empty-state">No tournament data loaded.</div>
+        <button class="btn btn-ghost full" type="button" data-route="tournament">View full bracket</button>
+      </aside>
+
+      <section class="quick-cta card action-card action-blue">
+        <svg><use href="#icon-lightning" /></svg>
+        <div><strong>Quick Decision</strong><span>Connect to a real session.</span></div>
+        <button class="btn btn-blue" data-route="quick" type="button">Open</button>
+      </section>
+
+      <section class="tour-cta card action-card action-purple">
+        <svg><use href="#icon-cup" /></svg>
+        <div><strong>Tournament</strong><span>Create brackets, pairs, elimination, and finals.</span></div>
+        <button class="btn btn-purple" data-route="tournament" type="button">Open</button>
+      </section>
+
+      <section class="memeforge card">
+        <div class="meme-intro"><strong>MemeForge</strong><span>Backend-generated reactions will appear here.</span><button class="btn btn-purple" type="button" id="createMemeBtn">Create Meme</button></div>
+        <div id="memeStrip" class="meme-strip empty-state">No meme assets received from backend.</div>
+        <div class="share-box"><span>Share your win</span><button class="btn btn-ghost" type="button"><svg><use href="#icon-link" /></svg> Copy link</button></div>
+      </section>
+    </section>
+  </template>
+
+  <template id="quickTemplate">
+    <section class="route-page two-column">
+      <div class="card page-hero">
+        <svg class="hero-icon"><use href="#icon-lightning" /></svg>
+        <div>
+          <p class="eyebrow">Quick Match</p>
+          <h1>Real session control</h1>
+          <p>This screen does not simulate a match locally. It calls your backend to create a session, join by code, submit a private choice, and receive the synchronized result.</p>
+        </div>
+      </div>
+
+      <div class="card control-card">
+        <div class="section-heading">Session</div>
+        <div class="button-row">
+          <button class="btn btn-blue" id="createMatchBtn" type="button">Create quick match</button>
+          <form id="joinMatchForm" class="inline-form">
+            <input id="joinCode" placeholder="PIN / Session code" />
+            <button class="btn btn-purple" type="submit">Join</button>
+          </form>
+        </div>
+        <div id="sessionInfo" class="info-box">No session loaded yet.</div>
+      </div>
+
+      <div class="card battle-control">
+        <div class="section-heading">Lock your private choice</div>
+        <div class="real-choice-row">
+          <button class="real-choice" type="button" data-submit-choice="rock"><svg><use href="#icon-rock" /></svg><span>Rock</span></button>
+          <button class="real-choice" type="button" data-submit-choice="paper"><svg><use href="#icon-paper" /></svg><span>Paper</span></button>
+          <button class="real-choice" type="button" data-submit-choice="scissors"><svg><use href="#icon-scissors" /></svg><span>Scissors</span></button>
+        </div>
+        <div id="choiceResponse" class="info-box">Choice buttons require an active backend session.</div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tournamentTemplate">
+    <section class="route-page">
+      <div class="card page-hero wide">
+        <svg class="hero-icon"><use href="#icon-cup" /></svg>
+        <div><p class="eyebrow">Tournament</p><h1>Backend bracket view</h1><p>The bracket below renders from <code>GET /api/tournaments/active</code>. No hard-coded winners.</p></div>
+        <button class="btn btn-purple" id="refreshTournamentBtn" type="button">Refresh</button>
+      </div>
+      <div class="card bracket-board" id="fullBracket">Connect backend to load tournament bracket.</div>
+    </section>
+  </template>
+
+  <template id="leaderboardTemplate">
+    <section class="route-page">
+      <div class="card page-hero wide">
+        <svg class="hero-icon"><use href="#icon-chart" /></svg>
+        <div><p class="eyebrow">Leaderboard</p><h1>Rankings from backend</h1><p>Renders players from <code>GET /api/leaderboard</code>.</p></div>
+        <button class="btn btn-blue" id="refreshLeaderboardBtn" type="button">Refresh</button>
+      </div>
+      <div class="card"><div id="leaderboardTable" class="table-state">Connect backend to load leaderboard.</div></div>
+    </section>
+  </template>
+
+  <template id="profileTemplate">
+    <section class="route-page two-column profile-route">
+      <div class="card page-hero">
+        <svg class="hero-icon"><use href="#icon-user" /></svg>
+        <div><p class="eyebrow">Profile</p><h1 data-bind="playerName">Player</h1><p>Your profile, rank, streaks, titles, and settings come from the backend.</p></div>
+      </div>
+      <div class="card profile-card"><div id="profileDetails">Connect backend to load profile.</div></div>
+    </section>
+  </template>
+
+  <script>
+/*
+  RPS Universe — backend-ready UI shell
+  ------------------------------------------------------------
+  This file contains NO local match simulation.
+  Every game action goes through ApiClient.
+
+  Configure backend in one of these ways:
+  1) In browser console:
+     localStorage.setItem("RPS_API_BASE_URL", "http://localhost:8080")
+     location.reload()
+  2) In index.html before app.js:
+     window.RPS_API_BASE_URL = "http://localhost:8080"
+  3) Use the Connect API form in the UI.
+*/
+
+const CONFIG = {
+  apiBaseUrl: window.RPS_API_BASE_URL || localStorage.getItem("RPS_API_BASE_URL") || "",
+  apiPrefix: "/api",
+};
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+const State = {
+  route: "home",
+  backendConnected: false,
+  profile: null,
+  dashboard: null,
+  activeMatch: null,
+  tournament: null,
+  leaderboard: null,
+};
+
+class ApiError extends Error {
+  constructor(message, status = 0, details = null) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.details = details;
+  }
+}
+
+class ApiClient {
+  constructor(config) {
+    this.config = config;
+  }
+
+  get baseUrl() {
+    return (this.config.apiBaseUrl || "").replace(/\/$/, "");
+  }
+
+  get isConfigured() {
+    return Boolean(this.baseUrl);
+  }
+
+  url(path) {
+    if (!this.isConfigured) {
+      throw new ApiError("Backend is not configured. Set RPS_API_BASE_URL or use the Connect API form.");
+    }
+    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+    return `${this.baseUrl}${this.config.apiPrefix}${cleanPath}`;
+  }
+
+  async request(path, options = {}) {
+    const requestOptions = {
+      method: options.method || "GET",
+      headers: { "Accept": "application/json", ...(options.headers || {}) },
+      credentials: options.credentials || "include",
+    };
+
+    if (options.body !== undefined) {
+      requestOptions.headers["Content-Type"] = "application/json";
+      requestOptions.body = JSON.stringify(options.body);
+    }
+
+    let response;
+    try {
+      response = await fetch(this.url(path), requestOptions);
+    } catch (error) {
+      throw new ApiError(`Network error: ${error.message}`);
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+    const payload = contentType.includes("application/json") ? await response.json().catch(() => null) : await response.text();
+
+    if (!response.ok) {
+      const message = payload && payload.message ? payload.message : `HTTP ${response.status}`;
+      throw new ApiError(message, response.status, payload);
+    }
+
+    return payload;
+  }
+
+  health() { return this.request("/health"); }
+  profile() { return this.request("/me"); }
+  dashboard() { return this.request("/dashboard"); }
+  activeMatch() { return this.request("/matches/active"); }
+  createQuickMatch() { return this.request("/matches", { method: "POST", body: { mode: "quick" } }); }
+  joinMatch(code) { return this.request(`/matches/join`, { method: "POST", body: { code } }); }
+  submitChoice(matchId, choice) { return this.request(`/matches/${encodeURIComponent(matchId)}/choice`, { method: "POST", body: { choice } }); }
+  tournament() { return this.request("/tournaments/active"); }
+  leaderboard() { return this.request("/leaderboard"); }
+  createMeme(eventId) { return this.request("/memeforge", { method: "POST", body: { event_id: eventId } }); }
+}
+
+const api = new ApiClient(CONFIG);
+
+function toast(message) {
+  const el = $("#toast");
+  el.textContent = message;
+  el.classList.add("show");
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => el.classList.remove("show"), 3800);
+}
+
+function setApiBaseUrl(value) {
+  CONFIG.apiBaseUrl = value.trim().replace(/\/$/, "");
+  localStorage.setItem("RPS_API_BASE_URL", CONFIG.apiBaseUrl);
+  $("#apiBaseUrl").value = CONFIG.apiBaseUrl;
+  refreshAll();
+}
+
+function formatNumber(value) {
+  if (value === null || value === undefined || value === "") return "—";
+  return Number(value).toLocaleString();
+}
+
+function getInitial(name) {
+  return (name || "?").trim().charAt(0).toUpperCase() || "?";
+}
+
+function normalizedProfile() {
+  const p = State.profile || {};
+  return {
+    id: p.id || p.player_id || null,
+    name: p.username || p.name || "Not connected",
+    title: p.title || p.rank_title || "Connect backend",
+    level: p.level ?? "—",
+    coins: p.coins ?? "—",
+    wins: p.wins ?? "—",
+    games: p.games ?? p.matches_played ?? null,
+    winRate: p.win_rate ?? p.winRate ?? null,
+    streak: p.streak ?? p.current_streak ?? "—",
+    bestStreak: p.best_streak ?? p.bestStreak ?? "—",
+    rank: p.rank ?? "—",
+    rankText: p.rank_text || p.rankText || "Waiting for backend",
+    trophies: p.trophies ?? p.points ?? "—",
+    recent: p.recent_results || p.recentResults || [],
+  };
+}
+
+function bindGlobalProfile() {
+  const p = normalizedProfile();
+  $$('[data-bind="playerName"]').forEach(el => el.textContent = p.name);
+  $$('[data-bind="profileInitial"]').forEach(el => el.textContent = getInitial(p.name));
+  $$('[data-bind="level"]').forEach(el => el.textContent = p.level);
+  $$('[data-bind="coins"]').forEach(el => el.textContent = formatNumber(p.coins));
+  $$('[data-bind="playerTitle"]').forEach(el => el.textContent = p.title);
+  $$('[data-bind="wins"]').forEach(el => el.textContent = formatNumber(p.wins));
+  $$('[data-bind="streak"]').forEach(el => el.textContent = formatNumber(p.streak));
+  $$('[data-bind="bestStreak"]').forEach(el => el.textContent = formatNumber(p.bestStreak));
+  $$('[data-bind="rank"]').forEach(el => el.textContent = p.rank);
+  $$('[data-bind="rankText"]').forEach(el => el.textContent = p.rankText);
+  $$('[data-bind="trophies"]').forEach(el => el.textContent = formatNumber(p.trophies));
+
+  const rate = p.winRate !== null ? `${Math.round(Number(p.winRate) * (Number(p.winRate) <= 1 ? 100 : 1))}%`
+    : p.games ? `${Math.round((Number(p.wins) / Number(p.games)) * 100)}%` : "—";
+  $$('[data-bind="winRate"]').forEach(el => el.textContent = rate);
+
+  const recentResults = $("#recentResults");
+  if (recentResults) {
+    recentResults.innerHTML = "";
+    if (!p.recent.length) {
+      recentResults.innerHTML = '<span class="muted">No results yet.</span>';
+    } else {
+      p.recent.slice(0, 5).forEach(result => {
+        const code = String(result).toLowerCase();
+        const div = document.createElement("div");
+        div.className = `result-dot ${code.startsWith("w") ? "win" : code.startsWith("l") ? "loss" : "draw"}`;
+        div.textContent = code.startsWith("w") ? "W" : code.startsWith("l") ? "L" : "D";
+        recentResults.appendChild(div);
+      });
+    }
+  }
+}
+
+function updateConnectionPanel() {
+  const panel = $("#connectionPanel");
+  const title = $("#apiStatusTitle");
+  const text = $("#apiStatusText");
+  $("#apiBaseUrl").value = CONFIG.apiBaseUrl;
+
+  panel.classList.toggle("is-connected", State.backendConnected);
+
+  if (!api.isConfigured) {
+    title.textContent = "Backend not connected";
+    text.textContent = "Set your API base URL. This UI is ready for real backend data and does not simulate matches locally.";
+  } else if (State.backendConnected) {
+    title.textContent = "Backend connected";
+    text.textContent = `Using ${CONFIG.apiBaseUrl}. Navigation and game actions will call real API endpoints.`;
+  } else {
+    title.textContent = "Backend configured, waiting for response";
+    text.textContent = `Configured: ${CONFIG.apiBaseUrl}. Health/profile request has not succeeded yet.`;
+  }
+}
+
+function setActiveNav() {
+  $$(".nav-button, [data-route]").forEach(el => {
+    if (el.classList.contains("nav-button")) {
+      el.classList.toggle("active", el.dataset.route === State.route);
+    }
+  });
+}
+
+function renderTemplate(name) {
+  const view = $("#view");
+  const template = $(`#${name}Template`);
+  view.innerHTML = "";
+  view.appendChild(template.content.cloneNode(true));
+  bindRouteActions(view);
+  bindGlobalProfile();
+  renderRouteData();
+  view.focus({ preventScroll: true });
+}
+
+function navigate(route) {
+  const allowed = new Set(["home", "quick", "tournament", "leaderboard", "profile"]);
+  State.route = allowed.has(route) ? route : "home";
+  history.replaceState(null, "", `#/${State.route}`);
+  setActiveNav();
+  renderTemplate(State.route);
+}
+
+function bindRouteActions(root = document) {
+  $$('[data-route]', root).forEach(btn => {
+    btn.addEventListener("click", () => navigate(btn.dataset.route));
+  });
+
+  const createMatchBtn = $("#createMatchBtn", root);
+  if (createMatchBtn) createMatchBtn.addEventListener("click", createQuickMatch);
+
+  const joinForm = $("#joinMatchForm", root);
+  if (joinForm) {
+    joinForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const code = $("#joinCode", root).value.trim();
+      if (!code) return toast("Enter a PIN or session code first.");
+      joinMatch(code);
+    });
+  }
+
+  $$('[data-submit-choice]', root).forEach(btn => {
+    btn.addEventListener("click", () => submitChoice(btn.dataset.submitChoice));
+  });
+
+  const refreshTournament = $("#refreshTournamentBtn", root);
+  if (refreshTournament) refreshTournament.addEventListener("click", loadTournament);
+
+  const refreshLeaderboard = $("#refreshLeaderboardBtn", root);
+  if (refreshLeaderboard) refreshLeaderboard.addEventListener("click", loadLeaderboard);
+
+  const memeBtn = $("#createMemeBtn", root);
+  if (memeBtn) memeBtn.addEventListener("click", createMeme);
+}
+
+function renderRouteData() {
+  if (State.route === "home") renderHomeData();
+  if (State.route === "quick") renderQuickData();
+  if (State.route === "tournament") renderTournamentData();
+  if (State.route === "leaderboard") renderLeaderboardData();
+  if (State.route === "profile") renderProfileData();
+}
+
+function renderHomeData() {
+  renderMatchPreview();
+  renderMiniBracket();
+  renderMemes();
+}
+
+function renderMatchPreview() {
+  const match = State.activeMatch || State.dashboard?.active_match || null;
+  const liveBadge = $(".live-badge");
+  const liveState = $("#liveState");
+  const centerStatus = $("#centerStatus");
+  const centerHint = $("#centerHint");
+  const countdownText = $("#countdownText");
+  const resultBanner = $("#resultBanner");
+
+  if (!centerStatus) return;
+
+  $$(".choice-card").forEach(card => card.classList.remove("is-selected"));
+
+  if (!match) {
+    if (liveBadge) liveBadge.classList.remove("is-live");
+    if (liveState) liveState.textContent = "Awaiting session";
+    centerStatus.textContent = "READY";
+    centerHint.textContent = "Create or join a match in Quick Match.";
+    countdownText.textContent = "LOCK";
+    resultBanner.className = "result-banner";
+    resultBanner.innerHTML = '<svg><use href="#icon-lightning" /></svg><div><strong>No active match</strong><span>Backend result will appear here after both players lock choices.</span></div>';
+    return;
+  }
+
+  if (liveBadge) liveBadge.classList.add("is-live");
+  if (liveState) liveState.textContent = match.status || "Live Match";
+
+  const opponent = match.opponent || match.players?.find(p => p.id !== normalizedProfile().id) || {};
+  $("#opponentName").textContent = opponent.username || opponent.name || "Opponent";
+  $("#opponentTitle").textContent = opponent.title || "Rival challenger";
+  $("#opponentTrophies").textContent = formatNumber(opponent.trophies ?? opponent.points);
+  $("#opponentInitial").textContent = getInitial(opponent.username || opponent.name);
+  $("#opponentLevel").textContent = opponent.level ?? "—";
+
+  centerStatus.textContent = String(match.phase || match.status || "LIVE").toUpperCase();
+  centerHint.textContent = match.message || "Waiting for synchronized backend reveal.";
+  countdownText.textContent = match.countdown_text || "3 2 1";
+
+  if (match.player_choice) {
+    const card = $(`[data-choice-preview="${match.player_choice}"]`);
+    if (card) card.classList.add("is-selected");
+  }
+  if (match.opponent_choice && match.revealed) {
+    const order = ["rock", "paper", "scissors"];
+    const index = order.indexOf(match.opponent_choice);
+    const opponentCards = $$("#opponentChoicesPreview .choice-card");
+    if (opponentCards[index]) opponentCards[index].classList.add("is-selected");
+  }
+
+  if (match.result) {
+    const result = match.result.outcome || match.result;
+    const className = result === "win" ? "win" : result === "lose" ? "lose" : result === "draw" ? "draw" : "";
+    resultBanner.className = `result-banner ${className}`;
+    resultBanner.innerHTML = `<svg><use href="#${result === "win" ? "icon-cup" : result === "lose" ? "icon-user" : "icon-lightning"}" /></svg><div><strong>${match.result.title || result.toUpperCase()}</strong><span>${match.result.message || "Result received from backend."}</span></div>`;
+  }
+}
+
+function renderMiniBracket() {
+  const target = $("#miniBracket");
+  if (!target) return;
+  const tournament = State.tournament || State.dashboard?.tournament || null;
+  if (!tournament || !Array.isArray(tournament.matches)) {
+    target.className = "mini-bracket empty-state";
+    target.textContent = "No tournament data loaded.";
+    const ends = $("#tournamentEnds");
+    if (ends) ends.textContent = "Load tournament data from backend.";
+    return;
+  }
+  const ends = $("#tournamentEnds");
+  if (ends) ends.textContent = tournament.ends_in || tournament.endsAt || "Active tournament";
+  target.className = "mini-bracket bracket-list";
+  target.innerHTML = tournament.matches.slice(0, 4).map(renderBracketMatch).join("");
+}
+
+function renderBracketMatch(match) {
+  const players = match.players || [match.player1, match.player2].filter(Boolean);
+  return `<div class="bracket-match">${players.map((player, index) => {
+    const isWinner = player.id && match.winner_id === player.id;
+    return `<div class="bracket-player ${isWinner ? "is-winner" : ""}"><small>${player.seed || index + 1}</small><span>${player.username || player.name || "TBD"}</span>${isWinner ? "<b>👑</b>" : ""}</div>`;
+  }).join("")}</div>`;
+}
+
+function renderMemes() {
+  const strip = $("#memeStrip");
+  if (!strip) return;
+  const memes = State.dashboard?.memes || [];
+  if (!memes.length) {
+    strip.className = "meme-strip empty-state";
+    strip.textContent = "No meme assets received from backend.";
+    return;
+  }
+  strip.className = "meme-strip";
+  strip.innerHTML = memes.slice(0, 4).map(meme => `<article class="meme-card"><strong>${meme.title || meme.caption || "MemeForge"}</strong><small>${meme.tag || meme.type || "Generated"}</small></article>`).join("");
+}
+
+function renderQuickData() {
+  const info = $("#sessionInfo");
+  const response = $("#choiceResponse");
+  const match = State.activeMatch;
+
+  if (info) {
+    if (!match) {
+      info.textContent = "No session loaded yet.";
+    } else {
+      info.innerHTML = `<strong>Session:</strong> ${match.code || match.id}<br><strong>Status:</strong> ${match.status || "active"}<br><strong>Players:</strong> ${(match.players || []).map(p => p.username || p.name).join(", ") || "Waiting"}`;
+    }
+  }
+  if (response && !match) response.textContent = "Choice buttons require an active backend session.";
+}
+
+function renderTournamentData() {
+  const target = $("#fullBracket");
+  if (!target) return;
+  if (!State.tournament || !Array.isArray(State.tournament.matches)) {
+    target.className = "card bracket-board empty-state";
+    target.textContent = "Connect backend to load tournament bracket.";
+    return;
+  }
+  target.className = "card bracket-board";
+  target.innerHTML = `<div class="full-bracket-grid">${State.tournament.matches.map(renderBracketMatch).join("")}</div>`;
+}
+
+function renderLeaderboardData() {
+  const target = $("#leaderboardTable");
+  if (!target) return;
+  const players = State.leaderboard?.players || State.leaderboard || [];
+  if (!Array.isArray(players) || !players.length) {
+    target.className = "table-state";
+    target.textContent = "Connect backend to load leaderboard.";
+    return;
+  }
+  target.className = "";
+  target.innerHTML = `<table class="leaderboard-table"><thead><tr><th>Rank</th><th>Player</th><th>Wins</th><th>Streak</th><th>Points</th></tr></thead><tbody>${players.map((p, i) => `<tr><td>${p.rank || i + 1}</td><td>${p.username || p.name}</td><td>${formatNumber(p.wins)}</td><td>${formatNumber(p.streak || p.current_streak)}</td><td>${formatNumber(p.points || p.trophies)}</td></tr>`).join("")}</tbody></table>`;
+}
+
+function renderProfileData() {
+  const target = $("#profileDetails");
+  if (!target) return;
+  if (!State.profile) {
+    target.innerHTML = "Connect backend to load profile.";
+    return;
+  }
+  const p = normalizedProfile();
+  target.innerHTML = `<div class="profile-grid">
+    <div class="profile-field"><span>Name</span><strong>${p.name}</strong></div>
+    <div class="profile-field"><span>Title</span><strong>${p.title}</strong></div>
+    <div class="profile-field"><span>Level</span><strong>${p.level}</strong></div>
+    <div class="profile-field"><span>Rank</span><strong>${p.rank}</strong></div>
+    <div class="profile-field"><span>Wins</span><strong>${formatNumber(p.wins)}</strong></div>
+    <div class="profile-field"><span>Trophies</span><strong>${formatNumber(p.trophies)}</strong></div>
+  </div>`;
+}
+
+async function refreshAll() {
+  updateConnectionPanel();
+  bindGlobalProfile();
+  if (!api.isConfigured) return;
+
+  try {
+    await api.health();
+    State.backendConnected = true;
+  } catch (error) {
+    State.backendConnected = false;
+    updateConnectionPanel();
+    toast(error.message);
+    return;
+  }
+
+  updateConnectionPanel();
+  await Promise.allSettled([loadProfile(), loadDashboard(), loadActiveMatch(), loadTournament(), loadLeaderboard()]);
+  renderRouteData();
+}
+
+async function loadProfile() {
+  try { State.profile = await api.profile(); }
+  catch (error) { toast(`Profile: ${error.message}`); }
+  bindGlobalProfile();
+}
+
+async function loadDashboard() {
+  try { State.dashboard = await api.dashboard(); }
+  catch (error) { /* Dashboard can be optional during early backend work. */ }
+  renderRouteData();
+}
+
+async function loadActiveMatch() {
+  try { State.activeMatch = await api.activeMatch(); }
+  catch (error) { State.activeMatch = null; }
+  renderRouteData();
+}
+
+async function createQuickMatch() {
+  try {
+    const match = await api.createQuickMatch();
+    State.activeMatch = match;
+    toast("Quick match created.");
+    renderRouteData();
+  } catch (error) { toast(error.message); }
+}
+
+async function joinMatch(code) {
+  try {
+    const match = await api.joinMatch(code);
+    State.activeMatch = match;
+    toast("Joined match.");
+    renderRouteData();
+  } catch (error) { toast(error.message); }
+}
+
+async function submitChoice(choice) {
+  const response = $("#choiceResponse");
+  const matchId = State.activeMatch?.id || State.activeMatch?.match_id;
+  if (!matchId) return toast("No active match. Create or join a session first.");
+  try {
+    if (response) response.textContent = `Submitting ${choice}...`;
+    const result = await api.submitChoice(matchId, choice);
+    State.activeMatch = result.match || result;
+    if (response) response.innerHTML = `<strong>Choice submitted:</strong> ${choice}<br>Waiting for backend reveal/result.`;
+    toast("Choice locked.");
+    renderRouteData();
+  } catch (error) {
+    if (response) response.textContent = error.message;
+    toast(error.message);
+  }
+}
+
+async function loadTournament() {
+  try {
+    State.tournament = await api.tournament();
+    renderRouteData();
+  } catch (error) {
+    toast(`Tournament: ${error.message}`);
+  }
+}
+
+async function loadLeaderboard() {
+  try {
+    State.leaderboard = await api.leaderboard();
+    renderRouteData();
+  } catch (error) {
+    toast(`Leaderboard: ${error.message}`);
+  }
+}
+
+async function createMeme() {
+  const eventId = State.activeMatch?.last_event_id || State.activeMatch?.id;
+  if (!eventId) return toast("No event/match id available for MemeForge yet.");
+  try {
+    const meme = await api.createMeme(eventId);
+    State.dashboard = State.dashboard || {};
+    State.dashboard.memes = [meme, ...(State.dashboard.memes || [])];
+    renderMemes();
+    toast("MemeForge asset created.");
+  } catch (error) { toast(error.message); }
+}
+
+function init() {
+  const route = location.hash.replace(/^#\/?/, "") || "home";
+  $("#apiConfigForm").addEventListener("submit", event => {
+    event.preventDefault();
+    setApiBaseUrl($("#apiBaseUrl").value);
+  });
+
+  $$(".nav-button, .profile-chip").forEach(btn => {
+    btn.addEventListener("click", () => navigate(btn.dataset.route));
+  });
+
+  window.addEventListener("hashchange", () => {
+    const next = location.hash.replace(/^#\/?/, "") || "home";
+    if (next !== State.route) navigate(next);
+  });
+
+  updateConnectionPanel();
+  navigate(route);
+  refreshAll();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+
+</script>
+</body>
+</html>

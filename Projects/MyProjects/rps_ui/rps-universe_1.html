@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rock Paper Scissors Universe</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05081a;
+  --panel:#0b1024;
+  --panel2:#0f1530;
+  --line:#1c2547;
+  --line-soft:#161d3c;
+  --cyan:#35c8ff;
+  --blue:#2f7bff;
+  --purple:#8b5cf6;
+  --gold:#f6b32b;
+  --green:#41f07d;
+  --red:#ff4757;
+  --text:#eaeeff;
+  --dim:#8a92b8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg)}
+body{
+  background:
+    radial-gradient(1100px 560px at 15% -8%, rgba(30,55,140,.35) 0%, transparent 60%),
+    radial-gradient(900px 520px at 88% 0%, rgba(90,35,160,.30) 0%, transparent 55%),
+    radial-gradient(700px 500px at 55% 110%, rgba(90,35,160,.18) 0%, transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:'Rajdhani',sans-serif;
+  min-height:100vh;
+  padding:14px;
+}
+.app{max-width:1560px;margin:0 auto}
+
+/* ================= HEADER ================= */
+header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;padding:8px 6px 16px}
+.brand{display:flex;align-items:center;gap:16px}
+.orb{width:88px;height:74px;position:relative;flex-shrink:0}
+.orb .ring{position:absolute;inset:6px -6px;border:2px solid rgba(139,92,246,.7);border-radius:50%;transform:rotate(-20deg);box-shadow:0 0 14px rgba(139,92,246,.4)}
+.orb .core{position:absolute;inset:8px 8px;border-radius:50%;background:radial-gradient(circle at 35% 32%,#1c2f6e,#080d26 70%);border:2px solid var(--cyan);display:flex;align-items:center;justify-content:center;font-size:19px;letter-spacing:-3px;box-shadow:0 0 24px rgba(53,200,255,.5), inset 0 0 16px rgba(139,92,246,.4)}
+.brand h1{font-family:'Orbitron';font-weight:800;font-size:24px;letter-spacing:2px;line-height:1.05;color:#fff}
+.brand .sub{font-family:'Orbitron';font-weight:700;font-size:16px;letter-spacing:12px;background:linear-gradient(90deg,var(--cyan) 0%,var(--purple) 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand .tag{font-size:13.5px;color:var(--dim);margin-top:3px;font-weight:500}
+
+nav{display:flex;gap:8px;justify-content:center}
+.nav-item{background:none;border:1px solid transparent;color:var(--dim);font-family:'Rajdhani';font-weight:600;font-size:14px;padding:9px 18px 8px;border-radius:14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:.2s;min-width:86px}
+.nav-item .ic{font-size:18px;line-height:1}
+.nav-item.active{color:#fff;border-color:rgba(53,200,255,.65);background:linear-gradient(180deg,rgba(53,200,255,.12),rgba(53,200,255,.03));box-shadow:0 0 16px rgba(53,200,255,.22), inset 0 0 12px rgba(53,200,255,.06)}
+.nav-item.active .ic{color:var(--cyan)}
+.nav-item:not(.active):hover{color:var(--text)}
+
+.hdr-right{display:flex;align-items:center;gap:18px;justify-content:flex-end}
+.coins{background:linear-gradient(180deg,#181d3a,#101430);border:1px solid #2a2f55;border-radius:22px;padding:8px 8px 8px 14px;display:flex;align-items:center;gap:9px;font-family:'Orbitron';font-weight:700;font-size:15px}
+.coin-ic{width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffd96a,#c07a10);display:inline-flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 0 8px rgba(246,179,43,.6)}
+.coins .plus{background:linear-gradient(180deg,#ffcf5c,#e39a17);color:#221500;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;cursor:pointer;font-family:'Rajdhani';font-size:16px}
+.bell{position:relative;font-size:20px;cursor:pointer;color:var(--dim)}
+.bell i{font-style:normal}
+.bell::after{content:"";position:absolute;top:-1px;right:-3px;width:7px;height:7px;background:var(--red);border-radius:50%;box-shadow:0 0 6px var(--red)}
+.user{display:flex;align-items:center;gap:10px}
+.ava{width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#4d6dff,#141a44 75%);border:2px solid rgba(53,200,255,.8);display:flex;align-items:center;justify-content:center;font-size:22px;position:relative;box-shadow:0 0 14px rgba(53,200,255,.35)}
+.ava .lvl{position:absolute;bottom:-5px;right:-5px;background:var(--red);font-size:10px;font-weight:700;border-radius:9px;padding:1px 6px;font-family:'Orbitron';border:2px solid var(--bg)}
+.user .uname{font-weight:700;font-size:15px}
+
+/* ================= MAIN GRID ================= */
+.layout{
+  display:grid;
+  grid-template-columns:208px minmax(0,1fr) 296px 318px;
+  grid-template-rows:auto auto auto;
+  grid-template-areas:
+    "stats arena  tour  phone"
+    "promo promo  promo phone"
+    "meme  meme   meme  phone";
+  gap:16px;
+  align-items:start;
+}
+.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:16px}
+.sec-title{font-family:'Orbitron';font-weight:700;font-size:13px;letter-spacing:2px;color:#cdd4f5;margin-bottom:13px}
+
+/* ================= STATS (left) ================= */
+.stats-col{grid-area:stats;display:flex;flex-direction:column;gap:14px}
+.stat{border-radius:13px;padding:11px 13px;display:flex;justify-content:space-between;align-items:flex-start;border:1px solid;margin-bottom:10px}
+.stat:last-child{margin-bottom:0}
+.stat small{display:block;font-size:10.5px;letter-spacing:1.2px;font-weight:700;margin-bottom:2px}
+.stat b{font-family:'Orbitron';font-weight:800;font-size:23px;color:#fff}
+.stat .em{font-size:19px;margin-top:2px}
+.stat .sub{font-size:11.5px;color:var(--dim);font-weight:600;margin-top:1px}
+.s-wins{background:linear-gradient(180deg,rgba(47,123,255,.12),rgba(47,123,255,.04));border-color:rgba(47,123,255,.45)}.s-wins small{color:#6ea8ff}
+.s-rate{background:linear-gradient(180deg,rgba(65,240,125,.09),rgba(65,240,125,.03));border-color:rgba(65,240,125,.4)}.s-rate small{color:var(--green)}
+.s-streak{background:linear-gradient(180deg,rgba(246,179,43,.09),rgba(246,179,43,.03));border-color:rgba(246,179,43,.4)}.s-streak small{color:var(--gold)}
+.s-rank{background:linear-gradient(180deg,rgba(139,92,246,.12),rgba(139,92,246,.04));border-color:rgba(139,92,246,.45)}.s-rank small{color:#b18cff}
+.results{display:flex;gap:6px;margin-bottom:12px}
+.rb{width:29px;height:29px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;border:1.5px solid;flex-shrink:0}
+.rb.w{background:rgba(65,240,125,.1);border-color:var(--green);color:var(--green)}
+.rb.l{background:rgba(255,71,87,.1);border-color:var(--red);color:var(--red)}
+.btn-ghost{width:100%;background:rgba(255,255,255,.035);border:1px solid var(--line);color:#aab2d8;border-radius:10px;padding:9px;font-family:'Rajdhani';font-weight:700;font-size:13px;letter-spacing:1.5px;cursor:pointer;transition:.2s}
+.btn-ghost:hover{color:#fff;border-color:rgba(53,200,255,.6)}
+
+/* ================= ARENA (center) ================= */
+.arena{grid-area:arena;position:relative;padding:20px 20px 18px}
+.live-pill{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:#0a0f26;border:1px solid var(--line);border-radius:20px;padding:6px 18px;font-family:'Orbitron';font-weight:700;font-size:11px;letter-spacing:2px;display:flex;align-items:center;gap:9px;z-index:3;white-space:nowrap}
+.live-pill::before{content:"";width:8px;height:8px;background:var(--green);border-radius:50%;box-shadow:0 0 9px var(--green);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+.versus{display:grid;grid-template-columns:1fr 96px 1fr;align-items:center;gap:8px;margin:8px 0 20px}
+.fighter{display:flex;align-items:center;gap:13px;padding:13px 18px;position:relative;min-height:92px}
+.fighter.p1{background:linear-gradient(90deg,rgba(47,123,255,.16),rgba(47,123,255,.02) 80%);border:1.5px solid rgba(53,200,255,.6);clip-path:polygon(0 0,93% 0,100% 50%,93% 100%,0 100%);border-radius:14px 0 0 14px;box-shadow:inset 0 0 26px rgba(53,200,255,.07)}
+.fighter.p2{background:linear-gradient(270deg,rgba(255,71,87,.16),rgba(255,71,87,.02) 80%);border:1.5px solid rgba(255,71,87,.6);flex-direction:row-reverse;text-align:right;clip-path:polygon(7% 0,100% 0,100% 100%,7% 100%,0 50%);border-radius:0 14px 14px 0;box-shadow:inset 0 0 26px rgba(255,71,87,.07)}
+.f-ava{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;position:relative;flex-shrink:0}
+.p1 .f-ava{background:radial-gradient(circle at 35% 28%,#4d6dff,#101638 75%);border:2.5px solid var(--cyan);box-shadow:0 0 18px rgba(53,200,255,.55)}
+.p2 .f-ava{background:radial-gradient(circle at 35% 28%,#43151d,#0d0508 75%);border:2.5px solid var(--red);box-shadow:0 0 18px rgba(255,71,87,.55)}
+.f-ava .lvl{position:absolute;bottom:-7px;font-size:10px;font-weight:700;border-radius:9px;padding:1.5px 7px;font-family:'Orbitron';border:2px solid #0b1024}
+.p1 .lvl{left:-8px;background:var(--red)}
+.p2 .lvl{right:-8px;background:var(--red)}
+.fighter b{font-family:'Orbitron';font-weight:700;font-size:17px;color:#fff}
+.fighter small{display:block;color:var(--dim);font-size:12.5px;margin:3px 0 4px;font-weight:500}
+.fighter .tr{color:var(--gold);font-weight:700;font-size:13.5px}
+.vs-wrap{text-align:center;position:relative}
+.vs{font-family:'Orbitron';font-weight:900;font-size:40px;font-style:italic;background:linear-gradient(180deg,#c8ecff 0%,var(--cyan) 45%,var(--purple) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(53,200,255,.65))}
+.vs-wrap .bolt{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:15px;opacity:.9}
+
+.battle{display:grid;grid-template-columns:1fr 178px 1fr;gap:14px;align-items:center}
+.hand-tray{display:flex;gap:0;border-radius:16px;overflow:visible;justify-content:center}
+.hand{width:88px;height:118px;border-radius:14px;background:linear-gradient(180deg,#12183a,#0a0f26);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:42px;cursor:pointer;transition:.18s;filter:grayscale(.75) brightness(.62);margin:0 -1px;position:relative;z-index:1}
+.hand:hover{transform:translateY(-5px);filter:none;border-color:var(--cyan);box-shadow:0 8px 22px rgba(53,200,255,.28);z-index:2}
+.hand.picked{filter:none;border-color:var(--cyan);box-shadow:0 0 22px rgba(53,200,255,.6), inset 0 0 18px rgba(53,200,255,.12);background:linear-gradient(180deg,#13224d,#0b1330);z-index:2;transform:translateY(-3px)}
+.hand.enemy{cursor:default}
+.hand.enemy:hover{transform:none;filter:grayscale(.75) brightness(.62);border-color:var(--line);box-shadow:none;z-index:1}
+.hand.enemy.picked{filter:none;border-color:var(--green);box-shadow:0 0 22px rgba(65,240,125,.6), inset 0 0 18px rgba(65,240,125,.12);background:linear-gradient(180deg,#0f2e1e,#0a1a12);transform:translateY(-3px);z-index:2}
+
+.mid{text-align:center;user-select:none}
+.count{font-family:'Orbitron';font-weight:700;font-size:24px;letter-spacing:10px;color:var(--gold);text-shadow:0 0 12px rgba(246,179,43,.5);min-height:30px}
+.go{font-family:'Orbitron';font-weight:900;font-size:64px;line-height:1;background:linear-gradient(180deg,#fff3c4 0%,var(--gold) 50%,#cf7d0e 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 22px rgba(246,179,43,.6));margin:0 0 6px}
+.mid p{color:#b8bfe0;font-size:14.5px;font-weight:600}
+
+.winner-bar{margin-top:20px;border-radius:16px;padding:10px 24px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px;border:1.5px solid var(--line-soft);min-height:88px;transition:.35s;background:rgba(255,255,255,.015)}
+.winner-bar.idle{grid-template-columns:1fr;text-align:center}
+.winner-bar.win{background:linear-gradient(90deg,rgba(65,240,125,.16),rgba(65,240,125,.02) 55%,rgba(65,240,125,.06));border-color:rgba(65,240,125,.55)}
+.winner-bar.lose{background:linear-gradient(90deg,rgba(255,71,87,.16),rgba(255,71,87,.02) 55%,rgba(255,71,87,.06));border-color:rgba(255,71,87,.55)}
+.winner-bar.draw{background:rgba(246,179,43,.07);border-color:rgba(246,179,43,.5)}
+.w-ava{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+.w-ava.hero{background:radial-gradient(circle at 35% 28%,#4d6dff,#101638 75%);border:2.5px solid var(--green);box-shadow:0 0 20px rgba(65,240,125,.55)}
+.w-ava.villain{background:radial-gradient(circle at 35% 28%,#43151d,#0d0508 75%);border:2.5px solid var(--red);box-shadow:0 0 16px rgba(255,71,87,.45)}
+.w-ava .crown{position:absolute;top:-22px;font-size:24px;filter:drop-shadow(0 0 8px var(--gold))}
+.w-center{text-align:center}
+.w-center h2{font-family:'Orbitron';font-weight:900;font-size:28px;letter-spacing:1px}
+.win .w-center h2{color:var(--green);text-shadow:0 0 18px rgba(65,240,125,.65)}
+.lose .w-center h2{color:var(--red);text-shadow:0 0 18px rgba(255,71,87,.65)}
+.draw .w-center h2{color:var(--gold);text-shadow:0 0 18px rgba(246,179,43,.6)}
+.w-center p{font-weight:600;font-size:16px;color:#e6eaff;margin-top:2px}
+.w-center .pts{color:var(--gold);font-weight:700}
+.hint{color:var(--dim);font-weight:600;font-size:14.5px}
+
+/* ================= TOURNAMENT (right) ================= */
+.tour{grid-area:tour}
+.tour h3{font-family:'Orbitron';font-weight:700;font-size:14.5px;letter-spacing:.5px;margin-bottom:8px;color:#fff}
+.tour .ends{color:var(--dim);font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.tabs span{padding-bottom:9px;font-weight:700;font-size:12.5px;letter-spacing:1.2px;color:var(--dim);cursor:pointer;transition:.2s}
+.tabs span.on{color:var(--cyan);border-bottom:2px solid var(--cyan);text-shadow:0 0 10px rgba(53,200,255,.4)}
+.bracket{display:flex;gap:10px}
+.pairs{flex:1;display:flex;flex-direction:column;gap:12px}
+.pair{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:6px;position:relative}
+.pl{display:flex;align-items:center;gap:9px;padding:6px 7px;border-radius:9px;font-weight:600;font-size:13.5px;color:#dbe1fa}
+.pl .n{color:#596094;font-family:'Orbitron';font-size:10px;width:11px;flex-shrink:0}
+.pl .pa{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;border:1.5px solid rgba(255,255,255,.15)}
+.pl .mk{margin-left:auto;font-size:13px}
+.pl.leader{background:rgba(53,200,255,.08);border:1px solid rgba(53,200,255,.25)}
+.b-lines{width:34px;position:relative}
+.b-lines svg{position:absolute;inset:0;width:100%;height:100%}
+.b-trophy{position:absolute;top:50%;right:-6px;transform:translateY(-50%);width:38px;height:38px;border-radius:10px;background:rgba(139,92,246,.15);border:1.5px solid rgba(139,92,246,.6);display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 14px rgba(139,92,246,.35)}
+
+/* ================= PROMO ROW ================= */
+.promo-row{grid-area:promo;display:grid;grid-template-columns:340px 1fr;gap:16px}
+.promo{border-radius:16px;padding:15px 18px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel2),var(--panel));position:relative}
+.promo .x{position:absolute;top:12px;right:14px;color:var(--dim);cursor:pointer;font-size:15px}
+.promo .top{display:flex;align-items:center;gap:13px;margin-bottom:13px}
+.promo .pic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.promo.qd .pic{background:linear-gradient(180deg,rgba(47,123,255,.25),rgba(47,123,255,.08));border:1px solid rgba(53,200,255,.55);box-shadow:0 0 16px rgba(53,200,255,.28)}
+.promo b{font-family:'Orbitron';font-weight:700;font-size:15.5px;letter-spacing:.5px;color:#fff}
+.promo small{display:block;color:var(--dim);font-size:13px;font-weight:600;margin-top:2px}
+.btn{border:none;border-radius:10px;padding:11px 22px;font-family:'Rajdhani';font-weight:700;font-size:14.5px;letter-spacing:1.5px;cursor:pointer;color:#fff;transition:.2s;display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn.blue{background:linear-gradient(90deg,#1e63f0,#35a8ff);box-shadow:0 4px 20px rgba(53,168,255,.35);width:100%}
+.btn.purple{background:linear-gradient(90deg,#6d2df0,#9a54ff);box-shadow:0 4px 20px rgba(139,92,246,.4)}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.promo.tn{background:linear-gradient(105deg,#191243 0%,#0d0a2a 55%,#150d33 100%);border-color:rgba(139,92,246,.4);display:flex;align-items:center;justify-content:space-between;gap:20px;overflow:hidden}
+.promo.tn::after{content:"🏆";position:absolute;right:120px;top:50%;transform:translateY(-50%);font-size:52px;opacity:.5;filter:drop-shadow(0 0 20px rgba(139,92,246,.8))}
+.promo.tn .left{display:flex;flex-direction:column;gap:12px}
+.promo.tn .pic{background:linear-gradient(180deg,rgba(139,92,246,.28),rgba(139,92,246,.1));border:1px solid rgba(139,92,246,.6);box-shadow:0 0 16px rgba(139,92,246,.3)}
+.promo.tn .top{margin-bottom:0}
+
+/* ================= MEMEFORGE ================= */
+.meme{grid-area:meme;display:grid;grid-template-columns:190px 1fr 200px;gap:18px;align-items:center;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+.meme h3{font-family:'Orbitron';font-weight:800;font-size:18px;display:flex;align-items:center;gap:10px;color:#fff}
+.meme h3 .new{font-size:9px;background:linear-gradient(90deg,#6d2df0,#9a54ff);padding:3px 9px;border-radius:10px;letter-spacing:1px;font-weight:700}
+.meme .msub{color:var(--dim);font-weight:600;display:block;margin:5px 0 13px;font-size:13px}
+.meme-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;position:relative}
+.mc{border-radius:12px;padding:11px 12px;min-height:118px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid rgba(255,255,255,.08);font-family:'Orbitron';font-weight:700;font-size:11.5px;line-height:1.55;position:relative;overflow:hidden;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.mc em{font-style:normal;font-size:30px;align-self:flex-end;margin-top:auto}
+.mc .tag{font-family:'Rajdhani';font-weight:700;color:rgba(255,255,255,.8);font-size:11px;text-shadow:none;margin-top:4px}
+.mc1{background:linear-gradient(155deg,#1c4a30 0%,#0c2317 100%)}
+.mc2{background:linear-gradient(155deg,#4a3c15 0%,#241d08 100%)}
+.mc3{background:linear-gradient(155deg,#33175f 0%,#150a30 100%)}
+.mc4{background:linear-gradient(155deg,#4a3208 0%,#221602 100%)}
+.mc-next{position:absolute;right:-8px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:#141a3a;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--dim);cursor:pointer}
+.share b{font-family:'Orbitron';font-weight:700;font-size:12px;letter-spacing:1.5px;color:#cdd4f5}
+.socials{display:flex;gap:10px;margin:13px 0}
+.socials span{width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.05);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;transition:.2s;font-weight:700}
+.socials span:hover{border-color:var(--cyan);box-shadow:0 0 14px rgba(53,200,255,.3);transform:translateY(-2px)}
+
+/* ================= PHONE MOCKUP (far right) ================= */
+.phone-col{grid-area:phone;display:flex;justify-content:center;position:sticky;top:14px}
+.phone{width:100%;max-width:318px;background:#0a0e22;border:10px solid #1c2340;border-radius:44px;box-shadow:0 0 0 2px #2a3156, 0 24px 70px rgba(0,0,0,.6), 0 0 50px rgba(53,200,255,.06);overflow:hidden;position:relative}
+.phone .notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:26px;background:#05081a;border-radius:16px;z-index:5}
+.p-status{display:flex;justify-content:space-between;align-items:center;padding:14px 22px 6px;font-family:'Orbitron';font-weight:700;font-size:12px}
+.p-status .r{display:flex;gap:5px;font-size:11px;font-family:'Rajdhani';color:#cdd4f5}
+.p-body{padding:6px 14px 12px}
+.p-live{display:flex;justify-content:center;margin-bottom:10px}
+.p-live span{background:#0d1330;border:1px solid var(--line);border-radius:16px;padding:4px 13px;font-family:'Orbitron';font-weight:700;font-size:9px;letter-spacing:1.5px;display:flex;align-items:center;gap:7px}
+.p-live span::before{content:"";width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 7px var(--green);animation:pulse 1.4s infinite}
+.p-vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-bottom:4px}
+.p-f{text-align:center}
+.p-f .pfa{width:52px;height:52px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:25px;position:relative}
+.p-f.me .pfa{background:radial-gradient(circle at 35% 28%,#4d6dff,#101638 75%);border:2px solid var(--cyan);box-shadow:0 0 14px rgba(53,200,255,.5)}
+.p-f.foe .pfa{background:radial-gradient(circle at 35% 28%,#43151d,#0d0508 75%);border:2px solid var(--red);box-shadow:0 0 14px rgba(255,71,87,.5)}
+.p-f .pfa .lvl{position:absolute;bottom:-5px;right:-4px;background:var(--red);font-size:8px;font-weight:700;border-radius:7px;padding:1px 5px;font-family:'Orbitron';border:1.5px solid #0a0e22}
+.p-f b{font-family:'Orbitron';font-weight:700;font-size:11px;display:block}
+.p-f .ptr{color:var(--gold);font-weight:700;font-size:10.5px}
+.p-vs .pvs{font-family:'Orbitron';font-weight:900;font-style:italic;font-size:20px;background:linear-gradient(180deg,#c8ecff,var(--cyan) 50%,var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(53,200,255,.6))}
+.p-reveal{text-align:center;color:var(--dim);font-size:10.5px;font-weight:600;margin-bottom:8px}
+.p-count{text-align:center}
+.p-count .c{font-family:'Orbitron';font-weight:700;font-size:15px;letter-spacing:7px;color:var(--gold);text-shadow:0 0 10px rgba(246,179,43,.5)}
+.p-count .g{font-family:'Orbitron';font-weight:900;font-size:42px;line-height:1.05;background:linear-gradient(180deg,#fff3c4,var(--gold) 50%,#cf7d0e);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px rgba(246,179,43,.6));margin-bottom:10px}
+.p-hands{display:flex;gap:9px;justify-content:center;margin-bottom:12px}
+.p-hand{flex:1;height:74px;border-radius:13px;background:linear-gradient(180deg,#12183a,#0a0f26);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:29px;filter:grayscale(.75) brightness(.62);cursor:pointer;transition:.18s}
+.p-hand.on-blue{filter:none;border-color:var(--cyan);box-shadow:0 0 16px rgba(53,200,255,.5);background:linear-gradient(180deg,#13224d,#0b1330)}
+.p-hand.on-green{filter:none;border-color:var(--green);box-shadow:0 0 16px rgba(65,240,125,.5);background:linear-gradient(180deg,#0f2e1e,#0a1a12)}
+.p-winner{border-radius:13px;border:1.5px solid rgba(65,240,125,.55);background:linear-gradient(90deg,rgba(65,240,125,.15),rgba(65,240,125,.03));display:flex;align-items:center;gap:12px;padding:9px 13px;margin-bottom:12px;min-height:64px}
+.p-winner .pwa{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#4d6dff,#101638 75%);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:21px;position:relative;flex-shrink:0;box-shadow:0 0 12px rgba(65,240,125,.5)}
+.p-winner .pwa .crown{position:absolute;top:-15px;font-size:15px;filter:drop-shadow(0 0 6px var(--gold))}
+.p-winner h4{font-family:'Orbitron';font-weight:900;font-size:15px;color:var(--green);text-shadow:0 0 12px rgba(65,240,125,.6)}
+.p-winner p{font-size:11.5px;font-weight:600}
+.p-winner .pts{color:var(--gold);font-weight:700}
+.p-cta{border-radius:13px;background:linear-gradient(90deg,#1e63f0,#35a8ff);box-shadow:0 4px 16px rgba(53,168,255,.35);display:flex;align-items:center;gap:12px;padding:11px 14px;margin-bottom:12px;cursor:pointer}
+.p-cta .ic{font-size:17px}
+.p-cta b{font-family:'Orbitron';font-weight:700;font-size:11.5px;display:block}
+.p-cta small{font-size:10.5px;font-weight:600;opacity:.85}
+.p-cta .arr{margin-left:auto;font-size:16px}
+.p-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:12px}
+.p-stat{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:11px;padding:8px 10px}
+.p-stat small{display:block;font-size:8.5px;letter-spacing:1px;font-weight:700;color:var(--dim);margin-bottom:2px}
+.p-stat b{font-family:'Orbitron';font-weight:800;font-size:15px}
+.p-tabs{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:10px 6px 4px}
+.p-tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;font-weight:700;color:var(--dim);cursor:pointer;flex:1}
+.p-tab .i{font-size:15px}
+.p-tab.on{color:var(--cyan)}
+
+/* ================= RESPONSIVE ================= */
+@media(max-width:1420px){
+  .layout{grid-template-columns:200px minmax(0,1fr) 280px;grid-template-areas:"stats arena tour" "promo promo promo" "meme meme meme"}
+  .phone-col{display:none}
+}
+@media(max-width:1000px){
+  .layout{grid-template-columns:1fr;grid-template-areas:"arena" "stats" "tour" "promo" "meme"}
+  header{grid-template-columns:1fr;justify-items:center;gap:14px}
+  .promo-row,.meme{grid-template-columns:1fr}
+  .meme-cards{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══════════════ HEADER ══════════════ -->
+  <header>
+    <div class="brand">
+      <div class="orb"><div class="ring"></div><div class="core">✊✋✌️</div></div>
+      <div>
+        <h1>ROCK PAPER SCISSORS</h1>
+        <div class="sub">UNIVERSE</div>
+        <div class="tag">Tiny decisions. Legendary battles.</div>
+      </div>
+    </div>
+
+    <nav>
+      <button class="nav-item active" data-nav="home"><span class="ic">🏠</span>Home</button>
+      <button class="nav-item" data-nav="quick"><span class="ic">⚡</span>Quick Match</button>
+      <button class="nav-item" data-nav="tournament"><span class="ic">🏆</span>Tournament</button>
+      <button class="nav-item" data-nav="leaderboard"><span class="ic">📊</span>Leaderboard</button>
+      <button class="nav-item" data-nav="profile"><span class="ic">👤</span>Profile</button>
+    </nav>
+
+    <div class="hdr-right">
+      <div class="coins"><span class="coin-ic">🪙</span><span id="coins">2,450</span><span class="plus" title="Buy coins">+</span></div>
+      <div class="bell"><i>🔔</i></div>
+      <div class="user">
+        <div class="ava">🧑‍🚀<span class="lvl">42</span></div>
+        <div class="uname" id="playerName">NovaLegend</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════ MAIN LAYOUT ══════════════ -->
+  <div class="layout">
+
+    <!-- ───── LEFT: STATS ───── -->
+    <div class="stats-col">
+      <div class="card">
+        <div class="sec-title">STATS</div>
+        <div class="stat s-wins"><div><small>WINS</small><b id="stWins">248</b></div><span class="em">🏆</span></div>
+        <div class="stat s-rate"><div><small>WIN RATE</small><b id="stRate">68%</b></div><span class="em">🎯</span></div>
+        <div class="stat s-streak"><div><small>CURRENT STREAK</small><b id="stStreak">7</b><div class="sub">Best: <span id="stBest">12</span></div></div><span class="em">🔥</span></div>
+        <div class="stat s-rank"><div><small>RANK</small><b id="stRank">#1,842</b><div class="sub">Top 5%</div></div><span class="em">💠</span></div>
+      </div>
+      <div class="card">
+        <div class="sec-title">RECENT RESULTS</div>
+        <div class="results" id="results"></div>
+        <button class="btn-ghost">VIEW ALL</button>
+      </div>
+    </div>
+
+    <!-- ───── CENTER: LIVE MATCH ARENA ───── -->
+    <div class="card arena">
+      <div class="live-pill">LIVE MATCH</div>
+
+      <div class="versus">
+        <div class="fighter p1">
+          <div class="f-ava">🧑‍🚀<span class="lvl">42</span></div>
+          <div><b id="p1Name">NovaLegend</b><small>Galactic Challenger</small><span class="tr">🏆 <span id="tr1">1,254</span></span></div>
+        </div>
+        <div class="vs-wrap"><span class="bolt">⚡</span><div class="vs">VS</div></div>
+        <div class="fighter p2">
+          <div class="f-ava">🥷<span class="lvl">38</span></div>
+          <div><b id="p2Name">ShadowStrike</b><small>Universe Explorer</small><span class="tr">🏆 <span id="tr2">1,198</span></span></div>
+        </div>
+      </div>
+
+      <div class="battle">
+        <div class="hand-tray" id="myHands">
+          <div class="hand" data-pick="rock">🪨</div>
+          <div class="hand" data-pick="paper">📄</div>
+          <div class="hand" data-pick="scissors">✂️</div>
+        </div>
+
+        <div class="mid">
+          <div class="count" id="count">3&nbsp;2&nbsp;1</div>
+          <div class="go" id="goTxt">GO</div>
+          <p id="midMsg">Revealing choices...</p>
+        </div>
+
+        <div class="hand-tray" id="foeHands">
+          <div class="hand enemy" data-foe="rock">🪨</div>
+          <div class="hand enemy" data-foe="paper">📄</div>
+          <div class="hand enemy" data-foe="scissors">✂️</div>
+        </div>
+      </div>
+
+      <div class="winner-bar idle" id="winnerBar">
+        <span class="hint">Choose rock, paper, or scissors to battle ShadowStrike</span>
+      </div>
+    </div>
+
+    <!-- ───── RIGHT: UNIVERSE TOURNAMENT ───── -->
+    <div class="card tour">
+      <h3>UNIVERSE TOURNAMENT</h3>
+      <div class="ends">🕒 Ends in <span id="tourEnds">02d 14h 32m</span></div>
+      <div class="tabs"><span class="on">BRACKET</span><span>LIVE PLAYERS</span></div>
+
+      <div class="bracket">
+        <div class="pairs" id="bracket">
+          <div class="pair">
+            <div class="pl leader"><span class="n">1</span><span class="pa" style="background:#1e3d82">🧑‍🚀</span>NovaLegend<span class="mk">👑</span></div>
+            <div class="pl"><span class="n">8</span><span class="pa" style="background:#3a2f6a">🌟</span>StarGazer<span class="mk" style="color:var(--green)">✔</span></div>
+          </div>
+          <div class="pair">
+            <div class="pl"><span class="n">4</span><span class="pa" style="background:#5a2a1a">🚀</span>Rocketeer</div>
+            <div class="pl"><span class="n">5</span><span class="pa" style="background:#1a465a">✈️</span>PaperPlane</div>
+          </div>
+          <div class="pair">
+            <div class="pl"><span class="n">2</span><span class="pa" style="background:#3a1218">🥷</span>ShadowStrike</div>
+            <div class="pl"><span class="n">7</span><span class="pa" style="background:#183a2a">✂️</span>ScissorMaster</div>
+          </div>
+          <div class="pair">
+            <div class="pl"><span class="n">3</span><span class="pa" style="background:#20305a">🤖</span>CosmicBot</div>
+            <div class="pl"><span class="n">6</span><span class="pa" style="background:#3a3012">🧘</span>ZenMaster</div>
+          </div>
+        </div>
+        <div class="b-lines">
+          <svg viewBox="0 0 34 420" preserveAspectRatio="none">
+            <path d="M2 55 H14 V160 H26 M2 108 H14 M2 265 H14 V360 H26 M2 318 H14 M26 160 V260 H32" stroke="#2a3568" stroke-width="1.5" fill="none"/>
+          </svg>
+          <div class="b-trophy">🏆</div>
+        </div>
+      </div>
+      <button class="btn-ghost" style="margin-top:14px">VIEW FULL BRACKET</button>
+    </div>
+
+    <!-- ───── PROMO ROW ───── -->
+    <div class="promo-row">
+      <div class="promo qd">
+        <span class="x">✕</span>
+        <div class="top"><span class="pic">⚡</span><div><b>QUICK DECISION</b><small>Jump into a fast match.</small></div></div>
+        <button class="btn blue" onclick="Game.reset()">PLAY NOW <span>›</span></button>
+      </div>
+      <div class="promo tn">
+        <div class="left">
+          <div class="top"><span class="pic">🏆</span><div><b>TOURNAMENT</b><small>Compete for glory and rewards</small></div></div>
+          <button class="btn purple">START TOURNAMENT 🪄</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── MEMEFORGE ───── -->
+    <div class="meme">
+      <div>
+        <h3>MEMEFORGE <span class="new">NEW</span></h3>
+        <span class="msub">Forge memes. Share victory.</span>
+        <button class="btn purple" style="width:100%">CREATE MEME 🪄</button>
+      </div>
+      <div class="meme-cards">
+        <div class="mc mc1">WHEN ROCK SOLID PLANS WORK<em>🪨😎🏆</em><span class="tag">#RockWins</span></div>
+        <div class="mc mc2">PAPER OVER EVERYTHING<em>📄🕶️</em><span class="tag">#SmartMove</span></div>
+        <div class="mc mc3">CUTTING THROUGH THE DRAMA<em>✂️⚡</em><span class="tag">#SnipSnip</span></div>
+        <div class="mc mc4">VICTORY LOOKS GOOD ON ME<em>👑😎</em><span class="tag">#Legend</span></div>
+        <span class="mc-next">›</span>
+      </div>
+      <div class="share">
+        <b>SHARE YOUR WIN</b>
+        <div class="socials"><span>🎮</span><span>𝕏</span><span>📸</span><span>♪</span></div>
+        <button class="btn-ghost">COPY LINK 🔗</button>
+      </div>
+    </div>
+
+    <!-- ───── FAR RIGHT: PHONE MOCKUP (mirrors live state) ───── -->
+    <div class="phone-col">
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="p-status"><span>9:41</span><span class="r">📶 ᯤ 🔋</span></div>
+        <div class="p-body">
+          <div class="p-live"><span>LIVE MATCH</span></div>
+          <div class="p-vs">
+            <div class="p-f me"><div class="pfa">🧑‍🚀<span class="lvl">42</span></div><b>NovaLegend</b><span class="ptr">🏆 <span id="ptr1">1,254</span></span></div>
+            <div><div class="pvs">VS</div></div>
+            <div class="p-f foe"><div class="pfa">🥷<span class="lvl">38</span></div><b>ShadowStrike</b><span class="ptr">🏆 <span id="ptr2">1,198</span></span></div>
+          </div>
+          <div class="p-reveal" id="pReveal">Revealing...</div>
+          <div class="p-count"><div class="c">3&nbsp;2&nbsp;1</div><div class="g">GO</div></div>
+          <div class="p-hands">
+            <div class="p-hand" data-pp="rock">🪨</div>
+            <div class="p-hand" data-pp="paper">📄</div>
+            <div class="p-hand" data-pp="scissors">✂️</div>
+          </div>
+          <div class="p-winner" id="pWinner">
+            <div class="pwa"><span class="crown">👑</span>🧑‍🚀</div>
+            <div><h4>WINNER!</h4><p>NovaLegend Wins <span class="pts">+24 🏆</span></p></div>
+          </div>
+          <div class="p-cta"><span class="ic">⚡</span><div><b>QUICK DECISION</b><small>PLAY NOW</small></div><span class="arr">›</span></div>
+          <div class="p-stats">
+            <div class="p-stat"><small>WINS</small><b id="pWins">248</b></div>
+            <div class="p-stat"><small>STREAK</small><b>🔥 <span id="pStreak">7</span></b></div>
+            <div class="p-stat"><small>WIN RATE</small><b id="pRate">68%</b></div>
+          </div>
+          <div class="p-tabs">
+            <div class="p-tab on"><span class="i">🏠</span>Home</div>
+            <div class="p-tab"><span class="i">⚡</span>Match</div>
+            <div class="p-tab"><span class="i">🏆</span>Tourney</div>
+            <div class="p-tab"><span class="i">📊</span>Leaders</div>
+            <div class="p-tab"><span class="i">👤</span>Profile</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /layout -->
+</div><!-- /app -->
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   BACKEND ADAPTER — this is your integration point.
+   Replace the mock implementations with fetch() calls to your API.
+   Everything else in the UI only talks to `API`, never to fetch
+   directly, so swapping in a real backend won't touch UI code.
+   ══════════════════════════════════════════════════════════════ */
+const API = {
+  baseUrl: null, // e.g. "https://api.yourgame.com"
+
+  // GET /profile → { name, coins, wins, games, streak, best, rank, trophies, recent: ["W","W","L","W","W"] }
+  async getProfile(){
+    // return (await fetch(`${this.baseUrl}/profile`, {credentials:"include"})).json();
+    return { name:"NovaLegend", coins:2450, wins:248, games:365, streak:7, best:12,
+             rank:"#1,842", trophies:1254, recent:["W","W","L","W","W"] };
+  },
+
+  // POST /match/play { move } → { opponentMove, outcome: "win"|"lose"|"draw", coinDelta, trophyDelta }
+  async playMove(move){
+    // return (await fetch(`${this.baseUrl}/match/play`, {
+    //   method:"POST", headers:{"Content-Type":"application/json"},
+    //   credentials:"include", body: JSON.stringify({ move })
+    // })).json();
+
+    // — mock: random opponent, computed locally —
+    const beats = { rock:"scissors", paper:"rock", scissors:"paper" };
+    const opponentMove = ["rock","paper","scissors"][Math.floor(Math.random()*3)];
+    let outcome = "draw", coinDelta = 0, trophyDelta = 0;
+    if (move !== opponentMove){
+      if (beats[move] === opponentMove){ outcome = "win";  coinDelta = 24; trophyDelta = 12; }
+      else                             { outcome = "lose"; coinDelta = 0;  trophyDelta = -8; }
+    }
+    await new Promise(r => setTimeout(r, 150)); // simulate latency
+    return { opponentMove, outcome, coinDelta, trophyDelta };
+  },
+
+  // GET /tournament → bracket data (currently rendered statically in the HTML)
+  async getTournament(){ return null; },
+
+  // POST /match/result — fire-and-forget stats sync if your backend wants it
+  async syncResult(payload){ /* fetch(`${this.baseUrl}/match/result`, ...) */ }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   GAME STATE + UI CONTROLLER
+   ══════════════════════════════════════════════════════════════ */
+const EMOJI = { rock:"🪨", paper:"📄", scissors:"✂️" };
+const $ = id => document.getElementById(id);
+
+const Game = {
+  state: { coins:2450, wins:248, games:365, streak:7, best:12, tr1:1254, tr2:1198, recent:["W","W","L","W","W"], busy:false },
+
+  async init(){
+    const p = await API.getProfile();
+    Object.assign(this.state, {
+      coins:p.coins, wins:p.wins, games:p.games, streak:p.streak,
+      best:p.best, tr1:p.trophies, recent:p.recent
+    });
+    $("playerName").textContent = p.name;
+    $("p1Name").textContent = p.name;
+    $("stRank").textContent = p.rank;
+    this.render();
+    document.querySelectorAll("#myHands .hand").forEach(h =>
+      h.addEventListener("click", () => this.play(h.dataset.pick)));
+    document.querySelectorAll(".p-hand").forEach(h =>
+      h.addEventListener("click", () => this.play(h.dataset.pp)));
+  },
+
+  async play(move){
+    if (this.state.busy) return;
+    this.state.busy = true;
+    this.clearHands();
+    document.querySelector(`#myHands [data-pick="${move}"]`).classList.add("picked");
+    document.querySelector(`.p-hand[data-pp="${move}"]`).classList.add("on-blue");
+    this.setWinnerBar("idle", `<span class="hint">Locked in ${EMOJI[move]} — revealing...</span>`);
+    $("midMsg").textContent = "Revealing choices...";
+    $("pReveal").textContent = "Revealing...";
+    $("goTxt").style.opacity = ".2";
+
+    // countdown 3 → 3 2 → 3 2 1 → GO
+    const steps = ["3", "3&nbsp;&nbsp;2", "3&nbsp;&nbsp;2&nbsp;&nbsp;1"];
+    for (const s of steps){
+      $("count").innerHTML = s;
+      await new Promise(r => setTimeout(r, 420));
+    }
+    $("goTxt").style.opacity = "1";
+
+    const res = await API.playMove(move);           // ← backend call
+    this.applyResult(move, res);
+    API.syncResult({ move, ...res });               // ← optional sync
+    setTimeout(() => { this.state.busy = false; }, 800);
+  },
+
+  applyResult(move, { opponentMove, outcome, coinDelta, trophyDelta }){
+    const s = this.state;
+    document.querySelector(`#foeHands [data-foe="${opponentMove}"]`).classList.add("picked");
+    s.games++;
+
+    if (outcome === "win"){
+      s.wins++; s.streak++; s.best = Math.max(s.best, s.streak);
+      s.recent.unshift("W");
+      this.setWinnerBar("win", `
+        <div class="w-ava hero"><span class="crown">👑</span>🧑‍🚀</div>
+        <div class="w-center"><h2>WINNER!</h2><p>NovaLegend Wins &nbsp;<span class="pts">+${coinDelta} 🏆</span></p></div>
+        <div class="w-ava villain">🥷</div>`);
+      $("midMsg").textContent = `${EMOJI[move]} beats ${EMOJI[opponentMove]}`;
+      $("pReveal").textContent = "You win!";
+    } else if (outcome === "lose"){
+      s.streak = 0;
+      s.recent.unshift("L");
+      this.setWinnerBar("lose", `
+        <div class="w-ava hero" style="border-color:var(--dim);box-shadow:none">🧑‍🚀</div>
+        <div class="w-center"><h2>DEFEATED</h2><p>ShadowStrike Wins &nbsp;<span class="pts" style="color:var(--red)">${trophyDelta} 🏆</span></p></div>
+        <div class="w-ava villain"><span class="crown">👑</span>🥷</div>`);
+      $("midMsg").textContent = `${EMOJI[opponentMove]} beats ${EMOJI[move]}`;
+      $("pReveal").textContent = "Defeated";
+    } else {
+      this.setWinnerBar("draw", `
+        <div class="w-ava hero" style="border-color:var(--gold)">🧑‍🚀</div>
+        <div class="w-center"><h2>DRAW!</h2><p>Great minds think alike</p></div>
+        <div class="w-ava villain" style="border-color:var(--gold)">🥷</div>`);
+      $("midMsg").textContent = "It's a draw!";
+      $("pReveal").textContent = "Draw!";
+    }
+
+    s.recent = s.recent.slice(0,5);
+    s.coins += coinDelta;
+    s.tr1 = Math.max(0, s.tr1 + trophyDelta);
+    s.tr2 = Math.max(0, s.tr2 - trophyDelta);
+    this.render();
+
+    const foePhone = document.querySelector(`.p-hand[data-pp="${opponentMove}"]`);
+    if (opponentMove !== move) foePhone.classList.add("on-green");
+  },
+
+  render(){
+    const s = this.state;
+    $("coins").textContent = s.coins.toLocaleString();
+    $("stWins").textContent = s.wins;
+    $("stRate").textContent = Math.round(s.wins / s.games * 100) + "%";
+    $("stStreak").textContent = s.streak;
+    $("stBest").textContent = s.best;
+    $("tr1").textContent = s.tr1.toLocaleString();
+    $("tr2").textContent = s.tr2.toLocaleString();
+    $("results").innerHTML = s.recent.map(r =>
+      `<div class="rb ${r === "W" ? "w" : "l"}">${r}</div>`).join("");
+    // phone mirror
+    $("pWins").textContent = s.wins;
+    $("pStreak").textContent = s.streak;
+    $("pRate").textContent = Math.round(s.wins / s.games * 100) + "%";
+    $("ptr1").textContent = s.tr1.toLocaleString();
+    $("ptr2").textContent = s.tr2.toLocaleString();
+  },
+
+  setWinnerBar(mode, html){
+    const w = $("winnerBar");
+    w.className = "winner-bar " + mode;
+    w.innerHTML = html;
+  },
+
+  clearHands(){
+    document.querySelectorAll(".hand").forEach(h => h.classList.remove("picked"));
+    document.querySelectorAll(".p-hand").forEach(h => h.classList.remove("on-blue","on-green"));
+  },
+
+  reset(){
+    if (this.state.busy) return;
+    this.clearHands();
+    $("count").innerHTML = "3&nbsp;&nbsp;2&nbsp;&nbsp;1";
+    $("goTxt").style.opacity = "1";
+    $("midMsg").textContent = "Revealing choices...";
+    $("pReveal").textContent = "Revealing...";
+    this.setWinnerBar("idle", '<span class="hint">Choose rock, paper, or scissors to battle ShadowStrike</span>');
+  }
+};
+
+Game.init();
+</script>
+</body>
+</html>

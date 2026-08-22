@@ -8,3 +8,42 @@
 build/
 bin/
 .viminfo
+
+# Large Apple firmware/app files
+*.ipsw
+*.ipa
+
+# Compiled shared libraries
+*.dylib
+
+# Third-party repository
+Projects/Coding/tools/iTerm2-Color-Schemes/
+
+# Independent Git repositories
+Projects/Common_core/push_swap/
+Projects/MyProjects/RockPaperScissors/
+Projects/Coding/test/
+Projects/Coding/Learning/algorithms/Algo_2/
+Projects/Coding/Learning/algorithms/Algorithm_and_DSA_in_C/
+Projects/Coding/Learning/algorithms/Algo-3/
+Projects/Coding/Learning/notes/General_Code_Notes/
+Projects/Coding/Learning/cpp/cpp-algo-lib/
+Projects/Coding/Learning/pointers/C_Pointer_Lab/
+Projects/Coding/Learning/c/DS_in_C/
+Projects/Coding/Learning/c/low-level-c-projects/
+Projects/Coding/Projects/
+Projects/Coding/42/42_Common_Core/
+Projects/Coding/42/42_examshell/
+Projects/Coding/42/exams/
+Projects/Coding/42/42ExamPractice/
+Projects/Coding/DDCA/
+
+
+# Local compiled executables
+Projects/Coding/42/Revision/CallStack
+Projects/Coding/42/Revision/NumbersPatterns
+Projects/Coding/42/Revision/NumbersPatternsInverted
+Projects/Coding/42/Revision/invertedPatternLetters
+Projects/Coding/practice-dev/vector_struct
+Projects/Coding/practice-dev/vector_struct_more_clean
+Projects/Coding/ShaLouData/
